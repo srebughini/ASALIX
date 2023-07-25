@@ -15,6 +15,7 @@ class ArgsFormat(Enum):
     TUPLE = "tuple"
     FLOAT = "float"
     ARRAY = "array"
+    MATRIX = "matrix"
     ENUM = "enum"
     DATAFRAME = "dataframe"
     CSV = "csv"
@@ -211,6 +212,46 @@ class UnitTest:
         return False, outputs, results
 
     @staticmethod
+    def check_matrix(f, results, args, args_format, atol=1.e-02, rtol=1.e-02):
+        """
+        Function to check and compare matrix
+        Parameters
+        ----------
+        f: Python object
+            Function to be run
+        results: Anything
+            Expected output of the function
+        args: array_like
+            Args of the function
+        args_format: str
+            Args type
+        atol: float, optional
+            Absolute tolerance for the comparison
+        rtol: float, optional
+            Relative tolerance for the comparison
+
+        Returns
+        -------
+        check: Bool
+            If True the test is passed, if False the test is failed
+        outputs: Anything
+            Output of the function
+        results: Anything
+            Expected output of the function
+
+        """
+        outputs = UnitTest.run_generic_function(f, args, ArgsFormat(args_format))
+
+        if len(outputs) == len(results):
+            for i, r in enumerate(results):
+                if not np.allclose(outputs[i], r, atol=atol, rtol=rtol):
+                    return False, outputs, results
+
+            return True, outputs, results
+
+        return False, outputs, results
+
+    @staticmethod
     def check_enum(f, results, args, args_format):
         """
         Function to check and compare enum
@@ -297,6 +338,8 @@ class UnitTest:
             check, outputs, results = UnitTest.check_array(f, results, args, args_format)
         elif results_format == ArgsFormat.ENUM.value:
             check, outputs, results = UnitTest.check_enum(f, results, args, args_format)
+        elif results_format == ArgsFormat.MATRIX.value:
+            check, outputs, results = UnitTest.check_matrix(f, results, args, args_format)
         else:
             check, outputs, results = UnitTest.check_others(f, results, args, args_format)
 

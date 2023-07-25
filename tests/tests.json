@@ -78,5 +78,174 @@
         "format": "array"
       }
     }
+  },
+  "NumericalMethods": {
+    "calculate_mean_value": {
+      "input": {
+        "value": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "format": "array"
+      },
+      "output": {
+        "value": 2.5,
+        "format": "float"
+      }
+    },
+    "calculate_population_standard_deviation": {
+      "input": {
+        "value": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "format": "array"
+      },
+      "output": {
+        "value": 1.118033988749895,
+        "format": "float"
+      }
+    },
+    "calculate_sample_standard_deviation": {
+      "input": {
+        "value": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "format": "array"
+      },
+      "output": {
+        "value": 1.2909944487358056,
+        "format": "float"
+      }
+    },
+    "calculate_normal_distribution": {
+      "input": {
+        "value": [
+          [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          3,
+          3,
+          1.5
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": [
+          1.23333687,
+          2.40221221,
+          3.0,
+          2.40221221,
+          1.23333687
+        ],
+        "format": "array"
+      }
+    },
+    "create_histogram": {
+      "input": {
+        "value": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "format": "array"
+      },
+      "output": {
+        "value": [
+          [
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1
+          ],
+          [
+            1.0,
+            1.3,
+            1.6,
+            1.9,
+            2.2,
+            2.5,
+            2.8,
+            3.1,
+            3.4,
+            3.7,
+            4.0
+          ],
+          [
+            1.15,
+            1.45,
+            1.75,
+            2.05,
+            2.35,
+            2.65,
+            2.95,
+            3.25,
+            3.55,
+            3.85
+          ]
+        ],
+        "format": "matrix"
+      }
+    },
+    "normal_distribution_fit": {
+      "input": {
+        "value": [
+          [
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1
+          ],
+          [
+            1.15,
+            1.45,
+            1.75,
+            2.05,
+            2.35,
+            2.65,
+            2.95,
+            3.25,
+            3.55,
+            3.85
+          ],
+          1.0,
+          1.0,
+          1.0
+        ],
+        "format": "tuple"
+      },
+      "output": {
+        "value": [
+          0.3999913392028946,
+          -0.1513894160538909,
+          754.0072317080119
+        ],
+        "format": "array"
+      }
+    }
   }
 }
