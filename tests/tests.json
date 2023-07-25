@@ -1,0 +1,82 @@
+{
+  "DatasetExtractor": {
+    "extract_dataset_from_list": {
+      "input": {
+        "value": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "format": "array"
+      },
+      "output": {
+        "value": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "format": "array"
+      }
+    },
+    "extract_dataset_from_dataframe": {
+      "input": {
+        "value": {
+          "a": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "b": [
+            3,
+            4,
+            5,
+            7
+          ]
+        },
+        "format": "dataframe"
+      },
+      "output": {
+        "value": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "format": "array"
+      }
+    },
+    "extract_dataset_from_csv": {
+      "input": {
+        "value": "tests/files/test1.csv",
+        "format": "csv"
+      },
+      "output": {
+        "value": [
+          1,
+          3,
+          5,
+          7
+        ],
+        "format": "array"
+      }
+    },
+    "extract_dataset_from_xlsx": {
+      "input": {
+        "value": "tests/files/test2.xlsx",
+        "format": "xlsx"
+      },
+      "output": {
+        "value": [
+          1,
+          3,
+          5,
+          7
+        ],
+        "format": "array"
+      }
+    }
+  }
+}
