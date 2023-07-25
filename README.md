@@ -8,7 +8,7 @@
 </p>
 
 
-**ASALIX** is part of the [ASALI](https://github.com/srebughini) project and it is a **Python** package that collects **mathematical tools and utilities** designed to support **Lean Six Sigma practitioners** in their process improvement journey. This repository aims to provide a robust **set of tools for data analysis and statistical modeling**.  
+**ASALIX** is a **Python** package that collects **mathematical tools and utilities** designed to support **Lean Six Sigma practitioners** in their process improvement journey. This repository aims to provide a robust **set of tools for data analysis and statistical modeling**.  
 Whether you are a Lean Six Sigma professional, a data analyst, or someone interested in process improvement, **ASALIX** offers a wide range of functions and modules to aid you in your Lean Six Sigma projects.
 
 ## 1. Installation
