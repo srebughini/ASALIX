@@ -80,13 +80,17 @@ class NumericalMethods:
         return nx
 
     @staticmethod
-    def create_histogram(dataset, datarange=None, density=False):
+    def create_histogram(dataset, bins=10, datarange=None, density=False):
         """
         Compute the histogram of a dataset.
         Parameters
         ----------
         dataset: array_like
             Input data. The histogram is computed over the flattened array.
+        bins: int or sequence of scalars or str, optional
+            If bins is an int, it defines the number of equal-width bins in the given range (10, by default).
+            If bins is a sequence, it defines a monotonically increasing array of bin edges, including the rightmost edge,
+            allowing for non-uniform bin widths.
         datarange: (float, float), optional
             The lower and upper range of the bins. If not provided, range is simply (a.min(), a.max()). Values outside the
             range are ignored. The first element of the range must be less than or equal to the second. range affects the
@@ -107,7 +111,7 @@ class NumericalMethods:
         bin_centers: array of dtype float
             Return the bin centers (length(hist)).
         """
-        hist, bin_edges = np.histogram(dataset, density=density, range=datarange)
+        hist, bin_edges = np.histogram(dataset, bins=bins, density=density, range=datarange)
         bin_centres = (bin_edges[:-1] + bin_edges[1:]) / 2
         return hist, bin_edges, bin_centres
 

@@ -17,10 +17,17 @@ To use the **ASALIX** library, you'll need to have Python installed on your syst
 pip install asalix
 ```
 ## 2. Examples
-### 2.1 Histogram
+### 2.1 Calculate mean value and standard deviation
 ```python
-import asalix
-# Example code showcasing the functionality of ASALIX
-# Replace this with your own examples and instructions.
+import asalix as ax
+
+dataset = [1,2,3,4,5]
+
+print("\nMean value")
+print("\u03BC:\t", ax.calculate_mean_value(dataset))
+print("xbar:\t", ax.calculate_mean_value(dataset))
+print("\nStandard deviation")
+print("\u03C3:\t", ax.calculate_standard_deviation(dataset, population=True))
+print("s:\t", ax.calculate_standard_deviation(dataset, population=False))
 ```
 

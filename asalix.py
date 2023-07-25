@@ -1,6 +1,5 @@
 from src.numerical_methods import NumericalMethods
 
-
 def calculate_mean_value(dataset):
     """
     Compute the arithmetic mean of the dataset.
@@ -39,7 +38,7 @@ def calculate_standard_deviation(dataset, population=False):
     return NumericalMethods.calculate_sample_standard_deviation(dataset)
 
 
-def gaussian_fit(hist, bin, plot=False):
+def normal_distribution_fit(hist, bin, plot=False):
     """
     Gaussian fit on histogram like dataset.
     Parameters
