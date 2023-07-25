@@ -1,4 +1,6 @@
-# ASALIX
+<p align="center">
+  <a href=""><img src="https://i.imgur.com/sLJPVWS.png" title="source: imgur.com" /></a>
+</p>
 
 <p align="center">
   <a href="https://github.com/srebughini/JASALI/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/srebughini/ASALIX"></a>
