@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.optimize import curve_fit
+from scipy import stats
 
 
 class NumericalMethods:
@@ -144,3 +145,96 @@ class NumericalMethods:
         coeff, _ = curve_fit(NumericalMethods.calculate_normal_distribution, bin, hist, p0=[A0, mu0, sigma0])
 
         return coeff[0], coeff[1], coeff[2]
+
+    @staticmethod
+    def anderson_darling_normality_test(dataset):
+        """
+        Anderson-Darling test for data coming from a particular distribution.
+        The Anderson-Darling test tests the null hypothesis that a sample is drawn from a population that follows a
+        particular distribution. For the Anderson-Darling test, the critical values depend on which distribution is
+        being tested against. This function works for normal distributions.
+        Parameters
+        ----------
+        dataset: array_like
+            Input data.
+
+        Returns
+        -------
+        p-value: float
+            If the p value is < 0.05, we reject the null hypotheses that the data are from a normal distribution.
+            If the p value is > 0.05, we accept the null hypotheses that the data are from a normal distribution.
+        """
+        res = stats.anderson(dataset)
+        n = len(dataset)
+        ad = res.statistic * (1 + 0.75 / n + 2.25 / (n * n))
+
+        if ad >= 0.6:
+            return np.exp(1.2937 - 5.709 * ad + 0.0186 * ad * ad)
+
+        if ad > 0.34:
+            return np.exp(0.9177 - 4.279 * ad - 1.38 * ad * ad)
+
+        if ad > 0.2:
+            return 1.0 - np.exp(-8.318 + 42.796 * ad - 59.938 * ad * ad)
+
+        return 1.0 - np.exp(13.436 + 101.14 * ad - 223.73 * ad * ad)
+
+    @staticmethod
+    def kolmogorov_smirnov_normality_test(dataset):
+        """
+        Performs the (one-sample or two-sample) Kolmogorov-Smirnov test for goodness of fit for a normal distribution
+        Parameters
+        ----------
+        dataset: array_like
+            Input data.
+
+        Returns
+        -------
+        p-value: float
+            If the p value is < 0.05, we reject the null hypotheses that the data are from a normal distribution.
+            If the p value is > 0.05, we accept the null hypotheses that the data are from a normal distribution.
+        """
+        mu = NumericalMethods.calculate_mean_value(dataset)
+        sigma = NumericalMethods.calculate_population_standard_deviation(dataset)
+        normed_dataset = (dataset - mu) / sigma
+        res = stats.kstest(normed_dataset, 'norm')
+        return res.pvalue
+
+    @staticmethod
+    def shapiro_wilk_normality_test(dataset):
+        """
+        Perform the Shapiro-Wilk test for normality.
+        The Shapiro-Wilk test tests the null hypothesis that the data was drawn from a normal distribution.
+
+        Parameters
+        ----------
+        dataset: array_like
+            Input data.
+
+        Returns
+        -------
+        p-value: float
+            If the p value is < 0.05, we reject the null hypotheses that the data are from a normal distribution.
+            If the p value is > 0.05, we accept the null hypotheses that the data are from a normal distribution.
+        """
+        res = stats.shapiro(dataset)
+        return res.pvalue
+
+    @staticmethod
+    def basic_normality_test(dataset):
+        """
+        Test whether a sample differs from a normal distribution.
+        This function tests the null hypothesis that a sample comes from a normal distribution. It is based on
+        D’Agostino and Pearson’s test that combines skew and kurtosis to produce an omnibus test of normality.
+        ----------
+        dataset: array_like
+            Input data.
+
+        Returns
+        -------
+        p-value: float
+            If the p value is < 0.05, we reject the null hypotheses that the data are from a normal distribution.
+            If the p value is > 0.05, we accept the null hypotheses that the data are from a normal distribution.
+        """
+        res = stats.normaltest(dataset)
+        return res.pvalue

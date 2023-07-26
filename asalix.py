@@ -1,4 +1,26 @@
+from src.dataset_extractor import DatasetExtractor
 from src.numerical_methods import NumericalMethods
+from src.plotter import Plotter
+
+
+def extract_dataset(data, sheet_name=None, data_column_name=None):
+    """
+    Import dataset from python list,  Pandas DataFrame, .csv file, .xlsx file
+    Parameters
+    ----------
+    data: list,  Pandas DataFrame, str
+            Input data
+    sheet_name: str, optional
+        Sheet name in the .xlsx file
+    data_column_name: str, optional
+        Column name of the dataframe that contains the data. If None the first column is returned
+    Returns
+    -------
+    dataset: array of dtype float
+        Input data in dataset format
+    """
+    return DatasetExtractor.extract_dataset(data, sheet_name=sheet_name, data_column_name=data_column_name)
+
 
 def calculate_mean_value(dataset):
     """
@@ -38,6 +60,34 @@ def calculate_standard_deviation(dataset, population=False):
     return NumericalMethods.calculate_sample_standard_deviation(dataset)
 
 
+def normality_test(dataset, test='basic'):
+    """
+    Normality test on the dataset
+    Parameters
+    ----------
+    dataset: array_like
+        Input data.
+    test: str, optional
+        Normality test type: {'basic', 'anderson-darling', 'kolmogorov_smirnov', 'shapiro_wilk'}
+
+    Returns
+    -------
+    p-value: float
+        If the p value is < 0.05, we reject the null hypotheses that the data are from a normal distribution.
+        If the p value is > 0.05, we accept the null hypotheses that the data are from a normal distribution.
+    """
+    if test == 'anderson-darling':
+        return NumericalMethods.anderson_darling_normality_test(dataset)
+
+    if test == 'kolmogorov_smirnov':
+        return NumericalMethods.kolmogorov_smirnov_normality_test(dataset)
+
+    if test == 'shapiro_wilk':
+        return NumericalMethods.shapiro_wilk_normality_test(dataset)
+
+    return NumericalMethods.basic_normality_test(dataset)
+
+
 def normal_distribution_fit(hist, bin, plot=False):
     """
     Gaussian fit on histogram like dataset.
@@ -62,9 +112,15 @@ def normal_distribution_fit(hist, bin, plot=False):
     pass
 
 
-def create_histogram(dataset, bins=10, datarange=None, density=False, gaussian_fit=False, plot=False):
+def create_histogram(dataset,
+                     bins=10,
+                     datarange=None,
+                     density=False,
+                     normal_distribution_fitting=False,
+                     normal_distribution_test='basic',
+                     plot=False):
     """
-    Compute the histogram of a dataset.
+    Create the histogram of a dataset.
     Parameters
     ----------
     dataset: array_like
@@ -83,10 +139,12 @@ def create_histogram(dataset, bins=10, datarange=None, density=False, gaussian_f
         probability density function at the bin, normalized such that the integral over the range is 1. Note that the
         sum of the histogram values will not be equal to 1 unless bins of unity width are chosen;
         it is not a probability mass function.
-    gaussian_fit: bool, optional
+    normal_distribution_fitting: bool, optional
         If False, the gaussian fit is not applied. If True, the gaussian fit is applied with the following formula:
         A * np.exp(-(x - mu) ** 2 / (2 * sigma ** 2)), where A is the gaussian fit coefficient, x is the dataset, mu is
         the mean value of the dataset and sigma is the standard deviation of the dataset.
+    normal_distribution_test: str, optional
+        Normality test type: {'basic', 'anderson-darling', 'kolmogorov_smirnov', 'shapiro_wilk'}
     plot: bool, optional
         If False, no plot is shown. If True, dataset is plotted.
 
@@ -105,4 +163,33 @@ def create_histogram(dataset, bins=10, datarange=None, density=False, gaussian_f
     sigma: dtype float
         Return the standard deviation of the dataset, if gaussian_fit is True.
     """
-    pass
+    hist, bin_edges, bin_centres = NumericalMethods.create_histogram(dataset,
+                                                                     bins=bins,
+                                                                     datarange=datarange,
+                                                                     density=density)
+
+    if normal_distribution_fitting:
+        p_value = normality_test(dataset, test=normal_distribution_test)
+        mu0 = NumericalMethods.calculate_mean_value(dataset)
+        sigma0 = NumericalMethods.calculate_sample_standard_deviation(dataset)
+        A, mu, sigma = NumericalMethods.normal_distribution_fit(hist, bin_centres, 1, mu0, sigma0)
+
+    if plot:
+        fig, ax = Plotter.create_figure(1)
+        fig, ax = Plotter.add_title(fig, ax, "Histogram")
+        fig, ax = Plotter.add_histogram(fig, ax, dataset, bins=bins, datarange=datarange, density=density)
+        if normal_distribution_fitting:
+            fig, ax = Plotter.add_normal_distribution_line(fig, ax, A, mu, sigma)
+            fig, ax = Plotter.add_normal_distribution_text_box(fig, ax, mu0, sigma0, len(dataset), p_value)
+
+        if density:
+            fig, ax = Plotter.add_axes_labels(fig, ax, "Bins", "Density")
+        else:
+            fig, ax = Plotter.add_axes_labels(fig, ax, "Bins", "Occurrence")
+
+        Plotter.show(fig, ax)
+
+    if normal_distribution_fitting:
+        return hist, bin_edges, bin_centres, A, mu, sigma
+
+    return hist, bin_edges, bin_centres
