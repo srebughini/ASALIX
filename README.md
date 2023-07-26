@@ -79,7 +79,9 @@ print("Anderson-Darling:   ", ax.normality_test(dataset, test="anderson_darling"
 print("Kolmogorov-Smirnov: ", ax.normality_test(dataset, test="kolmogorov_smirnov"))
 print("Shapiro-Wilk:       ", ax.normality_test(dataset, test="shapiro_wilk"))
 ```
+
 ### 2.3 Fit dataset with normal distribution
+
 ```python
 import pandas as pd
 import numpy as np
@@ -93,11 +95,12 @@ dataset = ax.extract_dataset(pd.DataFrame({"normal_dataset": np.random.normal(10
 # Fit dataset with a normal distribution
 res = ax.normal_distribution_fit(dataset)
 print("\nNormal fit")
-print("p-value:", res.p_value) #p-value
-print("A:      ", res.normal_coefficient) # Coefficient
+print("p-value:", res.p_value)  # p-value
+print("A:      ", res.normal_coefficient)  # Coefficient
 print("\u03BC:      ", res.mean_value)  # Mean value
 print("\u03C3:      ", res.standard_deviation)  # Standard deviation
 ```
+
 ### 2.4 Plot data using histogram
 
 ```python
@@ -112,5 +115,27 @@ dataset = ax.extract_dataset(pd.DataFrame({"normal_dataset": np.random.normal(10
 
 # Create the histogram with a normal distribution fitted curve and plot it
 ax.create_histogram(dataset, normal_distribution_fitting=True, plot=True, density=False)
+```
+
+### 2.5 Plot data using boxplot and calculate quartiles
+
+```python
+import pandas as pd
+import numpy as np
+import asalix as ax
+
+# Extract the dataset from a Pandas Dataframe that contains normal and not normal data
+dataset = ax.extract_dataset(pd.DataFrame({"normal_dataset": np.random.normal(10, 2, 1000),
+                                           "not_normal_dataset": list(range(0, 1000))}),
+                             data_column_name="normal_dataset")
+
+# Print the quartile values of the dataset on screen
+quartiles = ax.create_quartiles(dataset, plot=True, fig_number=1)
+print("\nQuartiles")
+print("Minimum: ", quartiles.minimum)
+print("1st:     ", quartiles.first)
+print("Median:  ", quartiles.median)
+print("3rd:     ", quartiles.third)
+print("Maximum: ", quartiles.maximum)
 ```
 

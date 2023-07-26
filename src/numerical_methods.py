@@ -81,6 +81,28 @@ class NumericalMethods:
         return nx
 
     @staticmethod
+    def calculate_percentile(dataset, q):
+        """
+        Compute the q-th percentile of the dataser.
+        Returns the q-th percentile(s) of the array elements.
+        Parameters
+        ----------
+        dataset: array_like of real numbers
+            Input dataset.
+
+        q: array_like of float
+            Percentage or sequence of percentages for the percentiles to compute.
+            Values must be between 0 and 100 inclusive.
+
+        Returns
+        -------
+        percentile: scalar or ndarray
+        If q is a single percentile, then the result is a scalar. If multiple percentiles are given,
+        first axis of the result corresponds to the percentiles.
+        """
+        return np.percentile(dataset, q)
+
+    @staticmethod
     def create_histogram(dataset, bins=10, datarange=None, density=False):
         """
         Compute the histogram of a dataset.

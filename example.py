@@ -4,7 +4,7 @@ import asalix as ax
 
 # Extract the dataset from a Pandas Dataframe that contains normal and not normal data
 dataset = ax.extract_dataset(pd.DataFrame({"normal_dataset": np.random.normal(10, 2, 1000),
-                                           "not_normal_dataset": list(range(0, 1000))}),
+                                           "not_normal_dataset": list(range(1, 1001))}),
                              data_column_name="normal_dataset")
 
 # Fit dataset with a normal distribution
@@ -16,7 +16,11 @@ print("\u03BC:      ", res.mean_value)  # Mean value
 print("\u03C3:      ", res.standard_deviation)  # Standard deviation
 
 # Create the histogram with a normal distribution fitted curve and plot it
-ax.create_histogram(dataset, normal_distribution_fitting=False, plot=False, density=False)
+ax.create_histogram(dataset,
+                    normal_distribution_fitting=False,
+                    plot=True,
+                    density=False,
+                    fig_number=1)
 
 # Print the calculated mean values on screen
 print("\nMean value")
@@ -34,3 +38,12 @@ print("Basic:              ", ax.normality_test(dataset))
 print("Anderson-Darling:   ", ax.normality_test(dataset, test="anderson_darling"))
 print("Kolmogorov-Smirnov: ", ax.normality_test(dataset, test="kolmogorov_smirnov"))
 print("Shapiro-Wilk:       ", ax.normality_test(dataset, test="shapiro_wilk"))
+
+# Print the quartile values of the dataset on screen
+quartiles = ax.create_quartiles(dataset, plot=True, fig_number=2)
+print("\nQuartiles")
+print("Minimum: ", quartiles.minimum)
+print("1st:     ", quartiles.first)
+print("Median:  ", quartiles.median)
+print("3rd:     ", quartiles.third)
+print("Maximum: ", quartiles.maximum)

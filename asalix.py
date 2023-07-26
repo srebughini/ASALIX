@@ -3,6 +3,8 @@ from src.numerical_methods import NumericalMethods
 from src.plotter import Plotter
 from types import SimpleNamespace
 
+import numpy as np
+
 
 def extract_dataset(data, sheet_name=None, data_column_name=None):
     """
@@ -149,7 +151,8 @@ def create_histogram(dataset,
                      density=False,
                      normal_distribution_fitting=False,
                      normal_distribution_test='basic',
-                     plot=False):
+                     plot=False,
+                     fig_number=1):
     """
     Create the histogram of a dataset.
     Parameters
@@ -178,6 +181,8 @@ def create_histogram(dataset,
         Normality test type: {'basic', 'anderson-darling', 'kolmogorov_smirnov', 'shapiro_wilk'}
     plot: bool, optional
         If False, no plot is shown. If True, dataset is plotted.
+    fig_number: int, optional
+        Figure number
 
     Returns
     -------
@@ -201,14 +206,14 @@ def create_histogram(dataset,
 
     p_value = normality_test(dataset, test=normal_distribution_test)
 
-    fig, ax = Plotter.create_figure(1)
+    fig, ax = Plotter.create_figure(fig_number)
     fig, ax = Plotter.add_title(fig, ax, "Histogram")
     fig, ax = Plotter.add_histogram(fig, ax, dataset, bins=bins, datarange=datarange, density=density)
 
     if density:
-        fig, ax = Plotter.add_axes_labels(fig, ax, "Bins", "Density")
+        fig, ax = Plotter.add_axes_labels(fig, ax, "Values", "Density")
     else:
-        fig, ax = Plotter.add_axes_labels(fig, ax, "Bins", "Occurrence")
+        fig, ax = Plotter.add_axes_labels(fig, ax, "Values", "Occurrence")
 
     fig, ax = Plotter.add_normal_distribution_text_box(fig,
                                                        ax,
@@ -240,3 +245,50 @@ def create_histogram(dataset,
                            normal_coefficient=a,
                            mean_value=mu,
                            standard_deviation=sigma)
+
+
+def create_quartiles(dataset, plot=False, fig_number=1):
+    """
+    Create the quartiles of the dataset
+    Parameters
+    ----------
+    dataset: array_like
+        Input data. The quartiles are computed over the flattened array.
+    plot: bool, optional
+        If False, no plot is shown. If True, dataset is plotted.
+    fig_number: int, optional
+        Figure number
+    Returns
+    -------
+    minimum: dtype float
+        Minimum value of dataset. 0%
+    first: dtype float
+        1st quartile - 25%
+    median, second: dtype float
+        2nd quartile - 50%
+    third: dtype float
+        3rd quartile - 75%
+    maximum, fourth: dtype float
+        4th quartile - 100%
+    """
+    minimum = np.min(dataset)
+    first_quartile = NumericalMethods.calculate_percentile(dataset, 25)
+    median = NumericalMethods.calculate_percentile(dataset, 50)
+    third_quartile = NumericalMethods.calculate_percentile(dataset, 75)
+    maximum = np.max(dataset)
+
+    if plot:
+        fig, ax = Plotter.create_figure(fig_number)
+        fig, ax = Plotter.add_title(fig, ax, "Boxplot")
+        fig, ax = Plotter.add_boxplot(fig, ax, dataset)
+        fig, ax = Plotter.add_axes_labels(fig, ax, "", "Values")
+        fig, ax = Plotter.add_quartile_text_box(fig, ax, minimum, first_quartile, median, third_quartile, maximum)
+        Plotter.show(fig, ax)
+
+    return SimpleNamespace(minimum=minimum,
+                           first=first_quartile,
+                           median=median,
+                           second=median,
+                           third=third_quartile,
+                           maximum=maximum,
+                           fourth=maximum)

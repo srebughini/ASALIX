@@ -71,78 +71,6 @@ class Plotter:
         return fig, ax
 
     @staticmethod
-    def add_normal_distribution_line(fig, ax, A, mu, sigma, fmt=None, label=None):
-        """
-        Add normal distribution ad line
-        Parameters
-        ----------
-        fig: Figure
-            Matplotlib figure class
-        ax: Axes or array of Axes
-            ax can be either a single Axes object, or an array of Axes objects if more than one subplot was created.
-            In this case only ONE subplot is created
-        fmt: str, optional
-            A format string, e.g. 'ro' for red circles. See the matplotlib section for a full description of the format
-            strings. Format strings are just an abbreviation for quickly setting basic line properties. All of these and
-            more can also be controlled by keyword arguments. This argument cannot be passed as keyword.
-        label: str, optional
-            Label associate with the data points
-        A: dtype float
-            Gaussian fit coefficient.
-        mu: dtype float
-            Mean value of the dataset.
-        sigma: dtype float
-            Standard deviation of the dataset.
-
-        Returns
-        -------
-        fig: Figure
-            Matplotlib figure class
-        ax: Axes or array of Axes
-            ax can be either a single Axes object, or an array of Axes objects if more than one subplot was created.
-            In this case only ONE subplot is created
-        """
-        x = np.linspace(mu - 3 * sigma, mu + 3 * sigma, 1000)
-        y = NumericalMethods.calculate_normal_distribution(x, A, mu, sigma)
-        return Plotter.add_line(fig, ax, x, y, fmt=fmt, label=label)
-
-    @staticmethod
-    def add_normal_distribution_text_box(fig, ax, mu, sigma, N, p_value):
-        """
-        Add normal distribution text box
-        Parameters
-        ----------
-        fig: Figure
-            Matplotlib figure class
-        ax: Axes or array of Axes
-            ax can be either a single Axes object, or an array of Axes objects if more than one subplot was created.
-            In this case only ONE subplot is created
-        mu: dtype float
-            Mean value of the dataset.
-        sigma: dtype float
-            Standard deviation of the dataset.
-        N: int
-            Number of samples
-        p_value:
-            P-value of the test
-
-        Returns
-        -------
-        fig: Figure
-            Matplotlib figure class
-        ax: Axes or array of Axes
-            ax can be either a single Axes object, or an array of Axes objects if more than one subplot was created.
-            In this case only ONE subplot is created
-        """
-
-        text = '\n'.join(["\u03BC: {:.3f}".format(mu),
-                          "\u03C3: {:.3f}".format(sigma),
-                          "N: {:d}".format(N),
-                          "p-value:  {:.3f}".format(p_value)])
-        return Plotter.add_text_box(fig, ax, text)
-
-
-    @staticmethod
     def add_line(fig, ax, x, y, fmt=None, label=None):
         """
         Add line plot
@@ -177,6 +105,33 @@ class Plotter:
         else:
             ax.plot(x, y, label=label)
 
+        return fig, ax
+
+    @staticmethod
+    def add_boxplot(fig, ax, dataset, labels=[""]):
+        """
+        Add boxplot
+        Parameters
+        ----------
+        fig: Figure
+            Matplotlib figure class
+        ax: Axes or array of Axes
+            ax can be either a single Axes object, or an array of Axes objects if more than one subplot was created.
+            In this case only ONE subplot is created
+        dataset: array_like
+            Input data. The histogram is computed over the flattened array.
+        labels : sequence, optional
+            Labels for each dataset. Length must be compatible with dimensions of x.
+
+        Returns
+        -------
+        fig: Figure
+            Matplotlib figure class
+        ax: Axes or array of Axes
+            ax can be either a single Axes object, or an array of Axes objects if more than one subplot was created.
+            In this case only ONE subplot is created
+        """
+        ax.boxplot(dataset, labels=labels)
         return fig, ax
 
     @staticmethod
@@ -266,6 +221,115 @@ class Plotter:
         anchored_text = AnchoredText(text, loc=loc)
         ax.add_artist(anchored_text)
         return fig, ax
+
+    @staticmethod
+    def add_normal_distribution_line(fig, ax, A, mu, sigma, fmt=None, label=None):
+        """
+        Add normal distribution ad line
+        Parameters
+        ----------
+        fig: Figure
+            Matplotlib figure class
+        ax: Axes or array of Axes
+            ax can be either a single Axes object, or an array of Axes objects if more than one subplot was created.
+            In this case only ONE subplot is created
+        fmt: str, optional
+            A format string, e.g. 'ro' for red circles. See the matplotlib section for a full description of the format
+            strings. Format strings are just an abbreviation for quickly setting basic line properties. All of these and
+            more can also be controlled by keyword arguments. This argument cannot be passed as keyword.
+        label: str, optional
+            Label associate with the data points
+        A: dtype float
+            Gaussian fit coefficient.
+        mu: dtype float
+            Mean value of the dataset.
+        sigma: dtype float
+            Standard deviation of the dataset.
+
+        Returns
+        -------
+        fig: Figure
+            Matplotlib figure class
+        ax: Axes or array of Axes
+            ax can be either a single Axes object, or an array of Axes objects if more than one subplot was created.
+            In this case only ONE subplot is created
+        """
+        x = np.linspace(mu - 3 * sigma, mu + 3 * sigma, 1000)
+        y = NumericalMethods.calculate_normal_distribution(x, A, mu, sigma)
+        return Plotter.add_line(fig, ax, x, y, fmt=fmt, label=label)
+
+    @staticmethod
+    def add_normal_distribution_text_box(fig, ax, mu, sigma, N, p_value):
+        """
+        Add normal distribution text box
+        Parameters
+        ----------
+        fig: Figure
+            Matplotlib figure class
+        ax: Axes or array of Axes
+            ax can be either a single Axes object, or an array of Axes objects if more than one subplot was created.
+            In this case only ONE subplot is created
+        mu: dtype float
+            Mean value of the dataset.
+        sigma: dtype float
+            Standard deviation of the dataset.
+        N: int
+            Number of samples
+        p_value:
+            P-value of the test
+
+        Returns
+        -------
+        fig: Figure
+            Matplotlib figure class
+        ax: Axes or array of Axes
+            ax can be either a single Axes object, or an array of Axes objects if more than one subplot was created.
+            In this case only ONE subplot is created
+        """
+
+        text = '\n'.join(["\u03BC: {:.3f}".format(mu),
+                          "\u03C3: {:.3f}".format(sigma),
+                          "N: {:d}".format(N),
+                          "p-value:  {:.3f}".format(p_value)])
+        return Plotter.add_text_box(fig, ax, text)
+
+    @staticmethod
+    def add_quartile_text_box(fig, ax, minimum, first_quartile, median, third_quartile, maximum):
+        """
+        Add quartile text box
+        Parameters
+        ----------
+        fig: Figure
+            Matplotlib figure class
+        ax: Axes or array of Axes
+            ax can be either a single Axes object, or an array of Axes objects if more than one subplot was created.
+            In this case only ONE subplot is created
+        minimum: dtype float
+            Minimum value of dataset. 0%
+        first_quartile: dtype float
+            1st quartile - 25%
+        median: dtype float
+            2nd quartile - 50%
+        third_quartile: dtype float
+            3rd quartile - 75%
+        maximum: dtype float
+            4th quartile - 100%
+
+        Returns
+        -------
+        fig: Figure
+            Matplotlib figure class
+        ax: Axes or array of Axes
+            ax can be either a single Axes object, or an array of Axes objects if more than one subplot was created.
+            In this case only ONE subplot is created
+        """
+
+        text = '\n'.join(["Minimum: {:.3f}".format(minimum),
+                          "1st quartile: {:.3f}".format(first_quartile),
+                          "Median:  {:.3f}".format(median),
+                          "3rd quartile: {:.3f}".format(third_quartile),
+                          "Maximum: {:.3f}".format(maximum)])
+        return Plotter.add_text_box(fig, ax, text)
 
     @staticmethod
     def show(fig, ax):
