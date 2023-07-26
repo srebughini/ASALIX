@@ -79,8 +79,26 @@ print("Anderson-Darling:   ", ax.normality_test(dataset, test="anderson_darling"
 print("Kolmogorov-Smirnov: ", ax.normality_test(dataset, test="kolmogorov_smirnov"))
 print("Shapiro-Wilk:       ", ax.normality_test(dataset, test="shapiro_wilk"))
 ```
+### 2.3 Fit dataset with normal distribution
+```python
+import pandas as pd
+import numpy as np
+import asalix as ax
 
-### 2.3 Plot data using histogram
+# Extract the dataset from a Pandas Dataframe that contains normal and not normal data
+dataset = ax.extract_dataset(pd.DataFrame({"normal_dataset": np.random.normal(10, 2, 1000),
+                                           "not_normal_dataset": list(range(0, 1000))}),
+                             data_column_name="normal_dataset")
+
+# Fit dataset with a normal distribution
+res = ax.normal_distribution_fit(dataset)
+print("\nNormal fit")
+print("p-value:", res[0]) #p-value
+print("A:      ", res[1]) # Coefficient
+print("\u03BC:      ", res[2])  # Mean value
+print("\u03C3:      ", res[3])  # Standard deviation
+```
+### 2.4 Plot data using histogram
 
 ```python
 import pandas as pd

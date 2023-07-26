@@ -77,7 +77,7 @@ class NumericalMethods:
         nx: array_like
             Normal distribution of the dataset
         """
-        nx = A * np.exp(-(np.asarray(dataset) - mu) ** 2 / (2 * sigma ** 2))
+        nx = A * np.exp(-np.square(np.asarray(dataset) - mu)/ (2 * np.square(sigma)))
         return nx
 
     @staticmethod
@@ -144,7 +144,7 @@ class NumericalMethods:
         """
         coeff, _ = curve_fit(NumericalMethods.calculate_normal_distribution, bin, hist, p0=[A0, mu0, sigma0])
 
-        return coeff[0], coeff[1], coeff[2]
+        return coeff[0], coeff[1], np.fabs(coeff[2])
 
     @staticmethod
     def anderson_darling_normality_test(dataset):
