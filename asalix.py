@@ -1,6 +1,7 @@
 from src.dataset_extractor import DatasetExtractor
 from src.numerical_methods import NumericalMethods
 from src.plotter import Plotter
+from types import SimpleNamespace
 
 
 def extract_dataset(data, sheet_name=None, data_column_name=None):
@@ -136,7 +137,10 @@ def normal_distribution_fit(dataset,
                                                              datarange=datarange,
                                                              density=density)
     a, mu, sigma = NumericalMethods.normal_distribution_fit(hist, bin_centres, 1, mu0, sigma0)
-    return p_value, a, mu, sigma
+    return SimpleNamespace(p_value=p_value,
+                           normal_coefficient=a,
+                           mean_value=mu,
+                           standard_deviation=sigma)
 
 
 def create_histogram(dataset,
@@ -217,7 +221,7 @@ def create_histogram(dataset,
     if not normal_distribution_fitting:
         if plot:
             Plotter.show(fig, ax)
-        return hist, bin_edges, bin_centres, None, None, None
+        return SimpleNamespace(hist=hist, bin_edges=bin_edges, bin_centres=bin_centres)
 
     a, mu, sigma = NumericalMethods.normal_distribution_fit(hist,
                                                             bin_centres,
@@ -230,4 +234,9 @@ def create_histogram(dataset,
 
     if plot:
         Plotter.show(fig, ax)
-    return hist, bin_edges, bin_centres, a, mu, sigma
+    return SimpleNamespace(hist=hist,
+                           bin_edges=bin_edges,
+                           bin_centres=bin_centres,
+                           normal_coefficient=a,
+                           mean_value=mu,
+                           standard_deviation=sigma)

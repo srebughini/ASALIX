@@ -10,13 +10,13 @@ dataset = ax.extract_dataset(pd.DataFrame({"normal_dataset": np.random.normal(10
 # Fit dataset with a normal distribution
 res = ax.normal_distribution_fit(dataset)
 print("\nNormal fit")
-print("p-value:", res[0]) #p-value
-print("A:      ", res[1]) # Coefficient
-print("\u03BC:      ", res[2])  # Mean value
-print("\u03C3:      ", res[3])  # Standard deviation
+print("p-value:", res.p_value) #p-value
+print("A:      ", res.normal_coefficient) # Coefficient
+print("\u03BC:      ", res.mean_value)  # Mean value
+print("\u03C3:      ", res.standard_deviation)  # Standard deviation
 
 # Create the histogram with a normal distribution fitted curve and plot it
-ax.create_histogram(dataset, normal_distribution_fitting=True, plot=False, density=False)
+ax.create_histogram(dataset, normal_distribution_fitting=False, plot=False, density=False)
 
 # Print the calculated mean values on screen
 print("\nMean value")
