@@ -3,8 +3,8 @@ import numpy as np
 import asalix as ax
 
 # Extract the dataset from a Pandas Dataframe that contains normal and not normal data
-dataset = ax.extract_dataset(pd.DataFrame({"normal_dataset": np.random.normal(10, 2, 1000),
-                                           "not_normal_dataset": list(range(1, 1001))}),
+dataset = ax.extract_dataset(pd.DataFrame({"normal_dataset": np.random.normal(100, 20, 20),
+                                           "not_normal_dataset": list(range(1, 21))}),
                              data_column_name="normal_dataset")
 
 # Fit dataset with a normal distribution
@@ -31,6 +31,11 @@ print("xbar:", ax.calculate_mean_value(dataset))  # Sample mean value
 print("\nStandard deviation")
 print("\u03C3:", ax.calculate_standard_deviation(dataset, population=True))  # Population standard deviation
 print("s:", ax.calculate_standard_deviation(dataset, population=False))  # Sample standard deviation
+
+# Print the confidence interval on screen
+print("\n95% confidence internval")
+print("\u03C3 known:  ", ax.calculate_confidence_interval(dataset, 0.95, population=True))
+print("\u03C3 unknown:", ax.calculate_confidence_interval(dataset, 0.95, population=False))
 
 # Print the p-value of different normality test on screen
 print("\nNormality test (P-value)")

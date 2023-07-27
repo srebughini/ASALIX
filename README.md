@@ -139,3 +139,20 @@ print("3rd:     ", quartiles.third)
 print("Maximum: ", quartiles.maximum)
 ```
 
+### 2.6 Calculate confidence interval
+
+```python
+import pandas as pd
+import numpy as np
+import asalix as ax
+
+# Extract the dataset from a Pandas Dataframe that contains normal and not normal data
+dataset = ax.extract_dataset(pd.DataFrame({"normal_dataset": np.random.normal(100, 20, 20),
+                                           "not_normal_dataset": list(range(1, 21))}),
+                             data_column_name="normal_dataset")
+
+# Print the confidence interval on screen
+print("\n95% confidence internval")
+print("\u03C3 known:  ", ax.calculate_confidence_interval(dataset, 0.95, population=True))
+print("\u03C3 unknown:", ax.calculate_confidence_interval(dataset, 0.95, population=False))
+```

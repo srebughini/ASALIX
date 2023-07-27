@@ -77,7 +77,7 @@ class NumericalMethods:
         nx: array_like
             Normal distribution of the dataset
         """
-        nx = A * np.exp(-np.square(np.asarray(dataset) - mu)/ (2 * np.square(sigma)))
+        nx = A * np.exp(-np.square(np.asarray(dataset) - mu) / (2 * np.square(sigma)))
         return nx
 
     @staticmethod
@@ -101,6 +101,88 @@ class NumericalMethods:
         first axis of the result corresponds to the percentiles.
         """
         return np.percentile(dataset, q)
+
+    @staticmethod
+    def calculate_z_critical_value(c):
+        """
+        Calculate Z-distribution critical values
+        Parameters
+        ----------
+        c: dtype float
+            Confidence Level (0-1)
+
+        Returns
+        -------
+        cf: dtype float
+            Confidence internal coefficient
+        """
+        q = 1 - (1 - c) / 2
+        return stats.norm.ppf(q)
+
+    @staticmethod
+    def calculate_t_critical_value(c, n):
+        """
+        Calculate t-distribution critical values
+        Parameters
+        ----------
+        c: dtype float
+            Confidence Level (0-1)
+        n: int
+            Number of samples
+
+        Returns
+        -------
+        cf: dtype float
+            Confidence internal coefficient
+        """
+        q = 1 - (1 - c) / 2
+        return stats.t.ppf(q=q, df=n)
+
+    @staticmethod
+    def calculate_population_confidence_internal(dataset, confidence_level):
+        """
+        Compute the confidence interval of the dataset, considered as the population
+        Parameters
+        ----------
+        dataset: array_like
+            Input data. The standard deviation is computed over the flattened array.
+        confidence_level: dtype float
+            Confidence Level (0-1)
+
+        Returns
+        -------
+        confidence_interval: (float,float)
+            Confidence internal of the dataset
+        """
+        n = len(dataset)
+        confidence_coefficient = NumericalMethods.calculate_z_critical_value(confidence_level)
+        mean_value = NumericalMethods.calculate_mean_value(dataset)
+        standard_deviation = NumericalMethods.calculate_population_standard_deviation(dataset)
+        variation = confidence_coefficient * standard_deviation / np.sqrt(n)
+        return mean_value - variation, mean_value + variation
+
+    @staticmethod
+    def calculate_sample_confidence_internal(dataset, confidence_level):
+        """
+        Compute the confidence interval of the dataset, considered as a sample of the whole population
+        Parameters
+        ----------
+        dataset: array_like
+            Input data. The standard deviation is computed over the flattened array.
+        confidence_level: dtype float
+            Confidence Level (0-1)
+
+        Returns
+        -------
+        confidence_interval: (float,float)
+            Confidence internal of the dataset
+        """
+        n = len(dataset)
+        confidence_coefficient = NumericalMethods.calculate_t_critical_value(confidence_level, n-1)
+        mean_value = NumericalMethods.calculate_mean_value(dataset)
+        standard_deviation = NumericalMethods.calculate_sample_standard_deviation(dataset)
+        variation = confidence_coefficient * standard_deviation / np.sqrt(n)
+        return mean_value - variation, mean_value + variation
 
     @staticmethod
     def create_histogram(dataset, bins=10, datarange=None, density=False):

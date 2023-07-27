@@ -63,6 +63,30 @@ def calculate_standard_deviation(dataset, population=False):
     return NumericalMethods.calculate_sample_standard_deviation(dataset)
 
 
+def calculate_confidence_interval(dataset, confidence_level, population=False):
+    """
+    Compute the confidence internval of the dataset.
+    Parameters
+    ----------
+    dataset: array_like
+        Input data. The standard is computed over the flattened array.
+    confidence_level: dtype float
+            Confidence Level (0-1)
+    population: bool, optional
+        If False the dataset is considered to be a subset of the whole data population. If True the dataset is
+        considered to be the all data population.
+
+    Returns
+    -------
+    confidence_interval: (float,float)
+        Confidence internal of the dataset
+    """
+    if population:
+        return NumericalMethods.calculate_population_confidence_internal(dataset, confidence_level)
+
+    return NumericalMethods.calculate_sample_confidence_internal(dataset, confidence_level)
+
+
 def normality_test(dataset, test='basic'):
     """
     Normality test on the dataset
