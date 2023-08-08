@@ -1,7 +1,7 @@
 import os
 
-from src.dataset_extractor import DatasetExtractor
-from src.numerical_methods import NumericalMethods
+from asalix.dataset_extractor import DatasetExtractor
+from asalix.numerical_methods import NumericalMethods
 from tests.unit_test import UnitTest
 
 dataset_extractor = DatasetExtractor()

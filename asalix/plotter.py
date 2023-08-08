@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.offsetbox import AnchoredText
 
-from src.numerical_methods import NumericalMethods
+from asalix.numerical_methods import NumericalMethods
 
 
 class Plotter:

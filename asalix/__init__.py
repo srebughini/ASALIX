@@ -1,6 +1,16 @@
-from src.dataset_extractor import DatasetExtractor
-from src.numerical_methods import NumericalMethods
-from src.plotter import Plotter
+"""
+asalix
+
+A comprehensive collection of mathematical tools and utilities designed to support Lean Six Sigma practitioners in their process improvement journey.
+"""
+
+__version__ = "0.1.1"
+__author__ = 'Stefano Rebughini'
+
+
+from asalix.dataset_extractor import DatasetExtractor
+from asalix.numerical_methods import NumericalMethods
+from asalix.plotter import Plotter
 from types import SimpleNamespace
 
 import numpy as np
@@ -316,3 +326,7 @@ def create_quartiles(dataset, plot=False, fig_number=1):
                            third=third_quartile,
                            maximum=maximum,
                            fourth=maximum)
+
+
+def create_run_charts():
+    pass

@@ -5,6 +5,7 @@
 <p align="center">
   <a href="https://github.com/srebughini/ASALIX/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/srebughini/ASALIX"></a>
   <a href="https://www.codefactor.io/repository/github/srebughini/asalix"><img src="https://www.codefactor.io/repository/github/srebughini/asalix/badge" alt="CodeFactor" /></a>
+  <a href="https://pypi.org/project/asalix/"><img src="https://img.shields.io/pypi/v/asalix"></a>
 </p>
 
 
@@ -30,7 +31,7 @@ pip install asalix
 ```python
 import pandas as pd
 import numpy as np
-import asalix as ax
+from asalix import __init__ as ax
 
 dataset = ax.extract_dataset(pd.DataFrame({"normal_dataset": np.random.normal(10, 2, 1000),
                                            "not_normal_dataset": list(range(0, 1000))}),
@@ -155,4 +156,15 @@ dataset = ax.extract_dataset(pd.DataFrame({"normal_dataset": np.random.normal(10
 print("\n95% confidence internval")
 print("\u03C3 known:  ", ax.calculate_confidence_interval(dataset, 0.95, population=True))
 print("\u03C3 unknown:", ax.calculate_confidence_interval(dataset, 0.95, population=False))
+```
+
+
+## 3. For developers
+To upload a new version of **ASALIX** on [PyPi](https://pypi.org/project/asalix/0.1.0/):
+```bash
+pip install --upgrade .
+python example.py
+python setup.py check
+python setup.py sdist
+twine upload dist/*
 ```
