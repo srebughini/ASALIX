@@ -3,8 +3,9 @@ import numpy as np
 import asalix as ax
 
 # Extract the dataset from a Pandas Dataframe that contains normal and not normal data
-dataset = ax.extract_dataset(pd.DataFrame({"normal_dataset": np.random.normal(100, 20, 20),
-                                           "not_normal_dataset": list(range(1, 21))}),
+number_of_points = 150
+dataset = ax.extract_dataset(pd.DataFrame({"normal_dataset": np.random.normal(100, 20, number_of_points),
+                                           "not_normal_dataset": list(range(1, number_of_points + 1))}),
                              data_column_name="normal_dataset")
 
 # Fit dataset with a normal distribution
@@ -52,3 +53,15 @@ print("1st:     ", quartiles.first)
 print("Median:  ", quartiles.median)
 print("3rd:     ", quartiles.third)
 print("Maximum: ", quartiles.maximum)
+
+# Create control chart
+control_chart = ax.create_control_charts(dataset, 'XbarR', plot=False, fig_number=3)
+print("\nControl chart")
+print("LCL:  ", control_chart.lcl)
+print("UCL:  ", control_chart.ucl)
+print("Mean: ", control_chart.mean)
+print("\nNelson rules")
+print("Rule 1: ", control_chart.rule1)
+print("Rule 2: ", control_chart.rule2)
+print("Rule 3: ", control_chart.rule3)
+print("Rule 4: ", control_chart.rule4)

@@ -1,6 +1,19 @@
 import numpy as np
+
+from enum import Enum
 from scipy.optimize import curve_fit
 from scipy import stats
+
+
+class NelsonRule(Enum):
+    RULE1 = 1
+    RULE2 = 2
+    RULE3 = 3
+    RULE4 = 4
+    RULE5 = 5
+    RULE6 = 6
+    RULE7 = 7
+    RULE8 = 8
 
 
 class NumericalMethods:
@@ -178,7 +191,7 @@ class NumericalMethods:
             Confidence internal of the dataset
         """
         n = len(dataset)
-        confidence_coefficient = NumericalMethods.calculate_t_critical_value(confidence_level, n-1)
+        confidence_coefficient = NumericalMethods.calculate_t_critical_value(confidence_level, n - 1)
         mean_value = NumericalMethods.calculate_mean_value(dataset)
         standard_deviation = NumericalMethods.calculate_sample_standard_deviation(dataset)
         variation = confidence_coefficient * standard_deviation / np.sqrt(n)
@@ -247,7 +260,6 @@ class NumericalMethods:
             Return the standard deviation of the dataset.
         """
         coeff, _ = curve_fit(NumericalMethods.calculate_normal_distribution, bin, hist, p0=[A0, mu0, sigma0])
-
         return coeff[0], coeff[1], np.fabs(coeff[2])
 
     @staticmethod
@@ -342,3 +354,186 @@ class NumericalMethods:
         """
         res = stats.normaltest(dataset)
         return res.pvalue
+
+    @staticmethod
+    def perform_nelson_rule_1_test(dataset):
+        """
+        Perform nelson rule number 1 test for control charts
+        Parameters
+        ----------
+        dataset: array_like
+            Input data.
+
+        Returns
+        -------
+        result: bool
+            If True one point is more than 3 standard deviations from the mean.
+        """
+        sigma = NumericalMethods.calculate_sample_standard_deviation(dataset)
+        mean = NumericalMethods.calculate_mean_value(dataset)
+        upper_limit = mean + 3 * sigma
+        lower_limit = mean - 3 * sigma
+        if sum([0 if upper_limit > v > lower_limit else 1 for v in dataset]) > 0:
+            return True
+
+        return False
+
+    @staticmethod
+    def perform_nelson_rule_2_test(dataset):
+        """
+        Perform nelson rule number 2 test for control charts
+        Parameters
+        ----------
+        dataset: array_like
+            Input data.
+
+        Returns
+        -------
+        result: bool
+            if True nine (or more) points in a row are on the same side of the mean.
+        """
+        mean = NumericalMethods.calculate_mean_value(dataset)
+        upper_side = False
+        lower_side = False
+        count = 0
+        for v in dataset:
+            if v > mean:
+                if upper_side:
+                    count = count + 1
+                else:
+                    upper_side = True
+                    lower_side = False
+                    count = 1
+            elif v < mean:
+                if lower_side:
+                    count = count + 1
+                else:
+                    upper_side = False
+                    lower_side = True
+                    count = 1
+            else:
+                upper_side = False
+                lower_side = False
+                count = 0
+
+            if count > 8:
+                return True
+
+        return False
+
+    @staticmethod
+    def perform_nelson_rule_3_test(dataset):
+        """
+        Perform nelson rule number 3 test for control charts
+        Parameters
+        ----------
+        dataset: array_like
+            Input data.
+
+        Returns
+        -------
+        result: bool
+            if True six (or more) points in a row are continually increasing (or decreasing).
+        """
+        diff_array = dataset[1:] - dataset[:-1]
+        upper_side = False
+        lower_side = False
+        count = 0
+        for v in diff_array:
+            if v > 0:
+                if upper_side:
+                    count = count + 1
+                else:
+                    upper_side = True
+                    lower_side = False
+                    count = 1
+            elif v < 0:
+                if lower_side:
+                    count = count + 1
+                else:
+                    upper_side = False
+                    lower_side = True
+                    count = 1
+            else:
+                upper_side = False
+                lower_side = False
+                count = 0
+
+            if count > 5:
+                return True
+
+        return False
+
+    @staticmethod
+    def perform_nelson_rule_4_test(dataset):
+        """
+        Perform nelson rule number 4 test for control charts
+        Parameters
+        ----------
+        dataset: array_like
+            Input data.
+
+        Returns
+        -------
+        result: bool
+            if True fourteen (or more) points in a row alternate in direction, increasing then decreasing.
+        """
+        diff_array = dataset[1:] - dataset[:-1]
+        upper_side = False
+        lower_side = False
+        count = 0
+        for i in range(1, len(diff_array)):
+            if diff_array[i] > diff_array[i - 1]:
+                if upper_side:
+                    count = count + 1
+                else:
+                    upper_side = True
+                    lower_side = False
+                    count = 1
+            elif diff_array[i] < diff_array[i - 1]:
+                if lower_side:
+                    count = count + 1
+                else:
+                    upper_side = False
+                    lower_side = True
+                    count = 1
+            else:
+                upper_side = False
+                lower_side = False
+                count = 0
+
+            if count > 13:
+                return True
+
+        return False
+
+    @staticmethod
+    def perform_nelson_rule_test(dataset, rule_number):
+        """
+        Perform nelson rule test for control charts
+        Parameters
+        ----------
+        dataset: array_like
+            Input data.
+        rule_number: NelsonRule Enum
+            Rule number to be performed
+
+        Returns
+        -------
+        result: bool
+            If False dataset is ok (rule is not respected).
+            If True dataset is NOT ok (rule is respected).
+        """
+        if rule_number == NelsonRule.RULE1:
+            return NumericalMethods.perform_nelson_rule_1_test(dataset)
+
+        if rule_number == NelsonRule.RULE2:
+            return NumericalMethods.perform_nelson_rule_2_test(dataset)
+
+        if rule_number == NelsonRule.RULE3:
+            return NumericalMethods.perform_nelson_rule_3_test(dataset)
+
+        if rule_number == NelsonRule.RULE4:
+            return NumericalMethods.perform_nelson_rule_4_test(dataset)
+
+        return None

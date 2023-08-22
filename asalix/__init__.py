@@ -4,12 +4,11 @@ asalix
 A comprehensive collection of mathematical tools and utilities designed to support Lean Six Sigma practitioners in their process improvement journey.
 """
 
-__version__ = "0.1.1"
+__version__ = "0.1.3"
 __author__ = 'Stefano Rebughini'
 
-
 from asalix.dataset_extractor import DatasetExtractor
-from asalix.numerical_methods import NumericalMethods
+from asalix.numerical_methods import NumericalMethods, NelsonRule
 from asalix.plotter import Plotter
 from types import SimpleNamespace
 
@@ -81,7 +80,7 @@ def calculate_confidence_interval(dataset, confidence_level, population=False):
     dataset: array_like
         Input data. The standard is computed over the flattened array.
     confidence_level: dtype float
-            Confidence Level (0-1)
+        Confidence Level (0-1)
     population: bool, optional
         If False the dataset is considered to be a subset of the whole data population. If True the dataset is
         considered to be the all data population.
@@ -328,5 +327,53 @@ def create_quartiles(dataset, plot=False, fig_number=1):
                            fourth=maximum)
 
 
-def create_run_charts():
-    pass
+def create_control_charts(dataset, control_chart, plot=False, fig_number=1):
+    """
+    Create control chart on the dataset
+    Parameters
+    ----------
+    dataset: array_like
+        Input data.
+    control_chart: str
+        Control chart type: {'XbarR',  #Xbar-R - Range charts
+                             'XbarS',  #Xbar-S - Standard Deviation charts
+                             'mr'}     #Moving Average - Range charts
+    plot: bool, optional
+        If False, no plot is shown. If True, dataset is plotted.
+    fig_number: int, optional
+        Figure number
+    Returns
+    -------
+    lcl: dtype float
+        Lower Control Limit
+    ucl: dtype float
+        Upper Control Limit
+    mean: dtype float
+        Mean value
+    rule1: dtype bool
+        if True one point is more than 3 standard deviations from the mean.
+    rule2: dtype bool
+        if True nine (or more) points in a row are on the same side of the mean.
+    rule3: dtype bool
+        if True six (or more) points in a row are continually increasing (or decreasing).
+    rule4: dtype bool
+        if True fourteen (or more) points in a row alternate in direction, increasing then decreasing.
+    rule5: dtype bool
+        if True two (or three) out of three points in a row are more than 2 standard deviations from the mean in the same direction.
+    rule6: dtype bool
+        if True four (or five) out of five points in a row are more than 1 standard deviation from the mean in the same direction.
+    rule7: dtype bool
+        if True fifteen points in a row are all within 1 standard deviation of the mean on either side of the mean.
+    rule8: dtype bool
+        if True eight points in a row exist, but none within 1 standard deviation of the mean, and the points are in both directions from the mean.
+    """
+    # https://en.wikipedia.org/wiki/Nelson_rules - Regole per capire se sono in controll
+    # https://github.com/omerfarukozturk/AnomalyDetection/blob/master/AnomalyDetection.py - Class for dectect anomaly using nelson rules
+    # https://github.com/carlosqsilva/pyspc/blob/master/pyspc/ccharts/tables.py - Tables with the parameters to estimate UCL, LCL
+    return SimpleNamespace(lcl=0,
+                           ucl=0,
+                           mean=NumericalMethods.calculate_mean_value(dataset),
+                           rule1=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE1),
+                           rule2=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE2),
+                           rule3=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE3),
+                           rule4=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE4))
