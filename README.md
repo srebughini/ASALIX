@@ -6,6 +6,7 @@
   <a href="https://github.com/srebughini/ASALIX/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/srebughini/ASALIX"></a>
   <a href="https://www.codefactor.io/repository/github/srebughini/asalix"><img src="https://www.codefactor.io/repository/github/srebughini/asalix/badge" alt="CodeFactor" /></a>
   <a href="https://pypi.org/project/asalix/"><img src="https://img.shields.io/pypi/v/asalix"></a>
+  <a href="https://pypi.org/project/asalix/"><img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/asalix"></a>
 </p>
 
 
