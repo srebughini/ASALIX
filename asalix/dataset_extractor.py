@@ -42,6 +42,57 @@ class DatasetExtractor:
                                                                   data_column_name=data_column_name,
                                                                   sheet_name=sheet_name)
 
+        raise Exception("ASALIX: Not recognize data format")
+
+    @staticmethod
+    def extract_time_dependent_dataset(data_as_generic,
+                                       data_column_name,
+                                       time_column_name,
+                                       sheet_name=None):
+        """
+        Import dataset from python list,  Pandas DataFrame, .csv file, .xlsx file
+        Parameters
+        ----------
+        data_as_generic: Pandas DataFrame, str
+                Input data
+        data_column_name: str
+            Column name of the dataframe that contains the data. If None the first column is returned
+        time_column_name: str
+            Column name of the dataframe that contains the time. If None the
+        sheet_name: str, optional
+            Sheet name in the .xlsx file
+
+        Returns
+        -------
+        dataset: dict of array of dtype float
+            Input data in time dependent dataset format
+        """
+        if isinstance(data_as_generic, pd.DataFrame):
+            return DatasetExtractor.convert_time_and_data_vectors_to_dataset(
+                DatasetExtractor.extract_dataset_from_dataframe(data_as_generic,
+                                                                data_column_name=time_column_name),
+                DatasetExtractor.extract_dataset_from_dataframe(data_as_generic,
+                                                                data_column_name=data_column_name))
+
+        if isinstance(data_as_generic, str):
+            if ".csv" in data_as_generic:
+                return DatasetExtractor.convert_time_and_data_vectors_to_dataset(
+                    DatasetExtractor.extract_dataset_from_csv(data_as_generic,
+                                                              data_column_name=data_column_name),
+                    DatasetExtractor.extract_dataset_from_csv(data_as_generic,
+                                                              data_column_name=time_column_name))
+
+            if ".xlsx" in data_as_generic:
+                return DatasetExtractor.convert_time_and_data_vectors_to_dataset(
+                    DatasetExtractor.extract_dataset_from_xlsx(data_as_generic,
+                                                               data_column_name=data_column_name,
+                                                               sheet_name=sheet_name),
+                    DatasetExtractor.extract_dataset_from_xlsx(data_as_generic,
+                                                               data_column_name=time_column_name,
+                                                               sheet_name=sheet_name))
+
+        raise Exception("ASALIX: Not recognize data format")
+
     @staticmethod
     def extract_dataset_from_list(data_as_list):
         """
@@ -122,3 +173,24 @@ class DatasetExtractor:
 
         return DatasetExtractor.extract_dataset_from_dataframe(pd.read_excel(file_path, sheet_name=sheet_name),
                                                                data_column_name=data_column_name)
+
+    @staticmethod
+    def convert_time_and_data_vectors_to_dataset(time_vector, data_vector):
+        """
+        Convert time vector and data vector to time dependent dataset
+        Parameters
+        ----------
+        time_vector: array_like
+            Input array of time data.
+        data_vector: array_like
+            Input array of data.
+
+        Returns
+        -------
+        dataset: dict of array of dtype float
+            Input data in time dependent dataset format
+        """
+        df = pd.DataFrame({"time": time_vector,
+                           "data": data_vector})
+
+        return {n: d["data"].to_numpy() for n, d in df.groupby('time')}

@@ -6,13 +6,13 @@ import asalix as ax
 number_of_points = 150
 dataset = ax.extract_dataset(pd.DataFrame({"normal_dataset": np.random.normal(100, 20, number_of_points),
                                            "not_normal_dataset": list(range(1, number_of_points + 1))}),
-                             data_column_name="normal_dataset")
+                             data_column_name="not_normal_dataset")
 
 # Fit dataset with a normal distribution
 res = ax.normal_distribution_fit(dataset)
 print("\nNormal fit")
-print("p-value:", res.p_value) #p-value
-print("A:      ", res.normal_coefficient) # Coefficient
+print("p-value:", res.p_value)  # p-value
+print("A:      ", res.normal_coefficient)  # Coefficient
 print("\u03BC:      ", res.mean_value)  # Mean value
 print("\u03C3:      ", res.standard_deviation)  # Standard deviation
 
@@ -54,14 +54,42 @@ print("Median:  ", quartiles.median)
 print("3rd:     ", quartiles.third)
 print("Maximum: ", quartiles.maximum)
 
-# Create control chart
-control_chart = ax.create_control_charts(dataset, 'XbarR', plot=False, fig_number=3)
-print("\nControl chart")
-print("LCL:  ", control_chart.lcl)
-print("UCL:  ", control_chart.ucl)
-print("Mean: ", control_chart.mean)
+# Nelson rules for time oriented dataset
+nelson_rules = ax.check_dataset_using_nelson_rules(dataset)
 print("\nNelson rules")
-print("Rule 1: ", control_chart.rule1)
-print("Rule 2: ", control_chart.rule2)
-print("Rule 3: ", control_chart.rule3)
-print("Rule 4: ", control_chart.rule4)
+print("Rule 1: ", nelson_rules.rule1)
+print("Rule 2: ", nelson_rules.rule2)
+print("Rule 3: ", nelson_rules.rule3)
+print("Rule 4: ", nelson_rules.rule4)
+print("Rule 5: ", nelson_rules.rule5)
+print("Rule 6: ", nelson_rules.rule6)
+print("Rule 7: ", nelson_rules.rule7)
+
+# Control chart
+number_of_points = 150
+number_of_timestamp = 10
+
+data_matrix = np.random.rand(number_of_timestamp, number_of_points)
+time_matrix = np.ones_like(data_matrix)
+
+for i in range(0, number_of_timestamp):
+    time_matrix[i, :] = time_matrix[i, :] * (i + 1)
+
+time_dependent_dataset = ax.extract_time_dependent_dataset(pd.DataFrame({"time": time_matrix.ravel(),
+                                                                         "data": data_matrix.ravel()}),
+                                                           "data",
+                                                           "time")
+
+xbar_chart_limit, range_chart_limit = ax.create_control_charts(time_dependent_dataset,
+                                                               'XbarR',
+                                                               plot=True,
+                                                               fig_number=3)
+print("\nXbar chart")
+print("LCL:  ", xbar_chart_limit.lcl)
+print("UCL:  ", xbar_chart_limit.ucl)
+print("CL:   ", xbar_chart_limit.cl)
+
+print("\nRange chart")
+print("LCL:  ", range_chart_limit.lcl)
+print("UCL:  ", range_chart_limit.ucl)
+print("CL:   ", range_chart_limit.cl)

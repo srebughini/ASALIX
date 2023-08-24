@@ -16,11 +16,143 @@ class NelsonRule(Enum):
     RULE8 = 8
 
 
+class ControlChartTablesCoefficient(Enum):
+    A2 = {
+        2: 1.88,
+        3: 1.023,
+        4: 0.729,
+        5: 0.577,
+        6: 0.483,
+        7: 0.419,
+        8: 0.373,
+        9: 0.337,
+        10: 0.308,
+        15: 0.223,
+        25: 0.153}
+
+    d2 = {
+        2: 1.128,
+        3: 1.693,
+        4: 2.059,
+        5: 2.326,
+        6: 2.534,
+        7: 2.704,
+        8: 2.847,
+        9: 2.97,
+        10: 3.078,
+        15: 3.472,
+        25: 3.931}
+
+    D3 = {
+        7: 0.076,
+        8: 0.136,
+        9: 0.184,
+        10: 0.223,
+        15: 0.347,
+        25: 0.459}
+
+    D4 = {
+        2: 3.267,
+        3: 2.574,
+        4: 2.282,
+        5: 2.114,
+        6: 2.004,
+        7: 1.924,
+        8: 1.864,
+        9: 1.816,
+        10: 1.777,
+        15: 1.653,
+        25: 1.541}
+
+    A3 = {
+        2: 2.659,
+        3: 1.954,
+        4: 1.628,
+        5: 1.427,
+        6: 1.287,
+        7: 1.182,
+        8: 1.099,
+        9: 1.032,
+        10: 0.975,
+        15: 0.789,
+        25: 0.606}
+
+    c4 = {
+        2: 0.7979,
+        3: 0.8862,
+        4: 0.9213,
+        5: 0.94,
+        6: 0.9515,
+        7: 0.9594,
+        8: 0.965,
+        9: 0.9693,
+        10: 0.9727,
+        15: 0.9823,
+        25: 0.9896}
+
+    B3 = {
+        6: 0.03,
+        7: 0.118,
+        8: 0.185,
+        9: 0.239,
+        10: 0.284,
+        15: 0.428,
+        25: 0.565}
+
+    B4 = {
+        2: 3.267,
+        3: 2.568,
+        4: 2.266,
+        5: 2.089,
+        6: 1.97,
+        7: 1.882,
+        8: 1.815,
+        9: 1.761,
+        10: 1.716,
+        15: 1.572,
+        25: 1.435}
+
+
 class NumericalMethods:
     def __init__(self):
         """
         Class that collect all the numerical methods
         """
+
+    @staticmethod
+    def _access_to_control_chart_tables_coefficient(n, control_chart_coefficient):
+        """
+        Private function to easily access to the ControlChartTablesCoefficient Enum given the number of sample in the dataset
+        Parameters
+        ----------
+        n: int
+            Number of sample in the dataset
+        control_chart_coefficient: Enum
+            Control chart coefficient to be extracted from the Enum
+
+        Returns
+        -------
+        coefficient: float
+            Extracted coefficient
+        """
+        keys_array = np.asarray(list(control_chart_coefficient.value.keys()))
+        return control_chart_coefficient.value[keys_array[np.argmin(keys_array - n)]]
+
+    @staticmethod
+    def calculate_range_value(dataset):
+        """
+        Compute the range of a dataset
+        Parameters
+        ----------
+        dataset: array_like
+            Input data. The mean value is computed over the flattened array.
+
+        Returns
+        -------
+        range_vector: dtype float
+            Return the range
+        """
+        return max(dataset) - min(dataset)
 
     @staticmethod
     def calculate_mean_value(dataset):
@@ -392,6 +524,9 @@ class NumericalMethods:
         result: bool
             if True nine (or more) points in a row are on the same side of the mean.
         """
+        if len(dataset) < 9:
+            return False
+
         mean = NumericalMethods.calculate_mean_value(dataset)
         upper_side = False
         lower_side = False
@@ -435,10 +570,14 @@ class NumericalMethods:
         result: bool
             if True six (or more) points in a row are continually increasing (or decreasing).
         """
+        if len(dataset) < 6:
+            return False
+
         diff_array = dataset[1:] - dataset[:-1]
         upper_side = False
         lower_side = False
         count = 0
+
         for v in diff_array:
             if v > 0:
                 if upper_side:
@@ -478,6 +617,9 @@ class NumericalMethods:
         result: bool
             if True fourteen (or more) points in a row alternate in direction, increasing then decreasing.
         """
+        if len(dataset) < 14:
+            return False
+
         diff_array = dataset[1:] - dataset[:-1]
         upper_side = False
         lower_side = False
@@ -503,6 +645,156 @@ class NumericalMethods:
                 count = 0
 
             if count > 13:
+                return True
+
+        return False
+
+    @staticmethod
+    def perform_nelson_rule_5_test(dataset):
+        """
+        Perform nelson rule number 5 test for control charts
+        Parameters
+        ----------
+        dataset: array_like
+            Input data.
+
+        Returns
+        -------
+        result: bool
+            if True two (or three) out of three points in a row are more than 2 standard deviations from the mean in the same direction.
+        """
+        if len(dataset) < 4:
+            return False
+
+        sigma = NumericalMethods.calculate_sample_standard_deviation(dataset)
+        mean = NumericalMethods.calculate_mean_value(dataset)
+        upper_limit = mean + 2 * sigma
+        lower_limit = mean - 2 * sigma
+        upper_count = 0
+        lower_count = 0
+
+        for i in range(0, len(dataset) - 3):
+            value_list = [dataset[i + j] for j in [0, 1, 2]]
+
+            if len(list(filter(lambda x: x > upper_limit, value_list))) == 3:
+                upper_count = upper_count + 1
+
+            if len(list(filter(lambda x: x < lower_limit, value_list))) == 3:
+                lower_count = lower_count + 1
+
+            if upper_count > 1:
+                return True
+
+            if lower_count > 1:
+                return True
+
+        return False
+
+    @staticmethod
+    def perform_nelson_rule_6_test(dataset):
+        """
+        Perform nelson rule number 6 test for control charts
+        Parameters
+        ----------
+        dataset: array_like
+            Input data.
+
+        Returns
+        -------
+        result: bool
+            if True four (or five) out of five points in a row are more than 1 standard deviation from the mean in the same direction.
+        """
+        if len(dataset) < 6:
+            return False
+
+        sigma = NumericalMethods.calculate_sample_standard_deviation(dataset)
+        mean = NumericalMethods.calculate_mean_value(dataset)
+        upper_limit = mean + 1 * sigma
+        lower_limit = mean - 1 * sigma
+        upper_count = 0
+        lower_count = 0
+
+        for i in range(0, len(dataset) - 5):
+            value_list = [dataset[i + j] for j in [0, 1, 2, 3, 4]]
+
+            if len(list(filter(lambda x: x > upper_limit, value_list))) == 5:
+                upper_count = upper_count + 1
+
+            if len(list(filter(lambda x: x < lower_limit, value_list))) == 5:
+                lower_count = lower_count + 1
+
+            if upper_count > 3:
+                return True
+
+            if lower_count > 3:
+                return True
+
+        return False
+
+    @staticmethod
+    def perform_nelson_rule_7_test(dataset):
+        """
+        Perform nelson rule number 7 test for control charts
+        Parameters
+        ----------
+        dataset: array_like
+            Input data.
+
+        Returns
+        -------
+        result: bool
+            if True fifteen points in a row are all within 1 standard deviation of the mean on either side of the mean.
+        """
+        if len(dataset) < 15:
+            return False
+
+        sigma = NumericalMethods.calculate_sample_standard_deviation(dataset)
+        mean = NumericalMethods.calculate_mean_value(dataset)
+        upper_limit = mean + 1 * sigma
+        lower_limit = mean - 1 * sigma
+
+        for i in range(len(dataset) - 15):
+            check = True
+            for j in range(15):
+                d = dataset[i + j]
+                if d >= upper_limit or d <= lower_limit:
+                    check = False
+                    break
+
+            if check:
+                return True
+
+        return False
+
+    @staticmethod
+    def perform_nelson_rule_8_test(dataset):
+        """
+        Perform nelson rule number 7 test for control charts
+        Parameters
+        ----------
+        dataset: array_like
+            Input data.
+
+        Returns
+        -------
+        result: bool
+            if True eight points in a row exist, but none within 1 standard deviation of the mean, and the points are in both directions from the mean.
+        """
+        if len(dataset) < 8:
+            return False
+
+        sigma = NumericalMethods.calculate_sample_standard_deviation(dataset)
+        mean = NumericalMethods.calculate_mean_value(dataset)
+
+        for i in range(len(dataset) - 8):
+            check = True
+            for j in range(8):
+                d = dataset[i + j]
+                if abs(mean - d) < sigma:
+                    check = False
+                    break
+
+            if check:
                 return True
 
         return False
@@ -536,4 +828,85 @@ class NumericalMethods:
         if rule_number == NelsonRule.RULE4:
             return NumericalMethods.perform_nelson_rule_4_test(dataset)
 
+        if rule_number == NelsonRule.RULE5:
+            return NumericalMethods.perform_nelson_rule_5_test(dataset)
+
+        if rule_number == NelsonRule.RULE6:
+            return NumericalMethods.perform_nelson_rule_6_test(dataset)
+
+        if rule_number == NelsonRule.RULE7:
+            return NumericalMethods.perform_nelson_rule_7_test(dataset)
+
+        if rule_number == NelsonRule.RULE8:
+            return NumericalMethods.perform_nelson_rule_8_test(dataset)
+
         return None
+
+    @staticmethod
+    def calculate_control_limits(dataset, control_chart):
+        """
+        Calculate lower and upper control limit
+
+        Parameters
+        ----------
+        dataset: dict of array of dtype float
+            Input data in time dependent dataset format
+        control_chart: str
+            Control chart type: {'XbarR',  #Xbar-R - Range charts
+                                 'XbarS',  #Xbar-S - Standard Deviation charts
+                                 'mr'}     #Moving Average - Range charts
+
+        Returns
+        -------
+        lcl_1: dtype float
+            Lower Control Limit (LCL) for Xbar chart
+        lcl_2: dtype float
+            Lower Control Limit (LCL) for R or S chart
+        ucl_1: dtype float
+            Upper Control Limit (UCL) for Xbar chart
+        ucl_2: dtype float
+            Upper Control Limit (UCL) for R or S chart
+        cl_1: dtype float
+            Center line (CL) for Xbar chart
+        cl_2: dtype float
+             Center line (CL) for R or S chart
+        """
+        mean_vector = [NumericalMethods.calculate_mean_value(d) for d in dataset.values()]
+        mean = NumericalMethods.calculate_mean_value(mean_vector)
+
+        if control_chart == 'XbarR':
+            range_vector = [NumericalMethods.calculate_range_value(d) for d in dataset.values()]
+            mean_range = NumericalMethods.calculate_mean_value(range_vector[1:])
+            a2 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
+                                                                              ControlChartTablesCoefficient.A2)
+            d3 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
+                                                                              ControlChartTablesCoefficient.D3)
+
+            d4 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
+                                                                              ControlChartTablesCoefficient.D4)
+
+            return mean - a2 * mean_range, \
+                   d3 * mean_range, \
+                   mean + a2 * mean_range, \
+                   d4 * mean_range, \
+                   mean, \
+                   mean_range
+
+        if control_chart == 'XbarS':
+            standard_deviation_vector = [NumericalMethods.calculate_sample_standard_deviation(d) for d in
+                                         dataset.values()]
+            mean_standard_deviation = NumericalMethods.calculate_mean_value(standard_deviation_vector)
+            a3 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
+                                                                              ControlChartTablesCoefficient.A3)
+            b3 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
+                                                                              ControlChartTablesCoefficient.B3)
+
+            b4 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
+                                                                              ControlChartTablesCoefficient.B4)
+
+            return mean - a3 * mean_standard_deviation, \
+                   b3 * mean_standard_deviation, \
+                   mean + a3 * mean_standard_deviation, \
+                   b4 * mean_standard_deviation, \
+                   mean, \
+                   mean_standard_deviation

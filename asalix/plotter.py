@@ -103,7 +103,7 @@ class Plotter:
         if fmt is None:
             ax.plot(x, y, label=label)
         else:
-            ax.plot(x, y, label=label)
+            ax.plot(x, y, fmt, label=label)
 
         return fig, ax
 
@@ -225,7 +225,7 @@ class Plotter:
     @staticmethod
     def add_normal_distribution_line(fig, ax, A, mu, sigma, fmt=None, label=None):
         """
-        Add normal distribution ad line
+        Add normal distribution as line
         Parameters
         ----------
         fig: Figure
@@ -257,6 +257,39 @@ class Plotter:
         x = np.linspace(mu - 3 * sigma, mu + 3 * sigma, 1000)
         y = NumericalMethods.calculate_normal_distribution(x, A, mu, sigma)
         return Plotter.add_line(fig, ax, x, y, fmt=fmt, label=label)
+
+    @staticmethod
+    def add_control_limit_line(fig, ax, dataset, limit, fmt=None, label=None):
+        """
+        Add control limits as line
+        Parameters
+        ----------
+        fig: Figure
+            Matplotlib figure class
+        ax: Axes or array of Axes
+            ax can be either a single Axes object, or an array of Axes objects if more than one subplot was created.
+            In this case only ONE subplot is created
+        fmt: str, optional
+            A format string, e.g. 'ro' for red circles. See the matplotlib section for a full description of the format
+            strings. Format strings are just an abbreviation for quickly setting basic line properties. All of these and
+            more can also be controlled by keyword arguments. This argument cannot be passed as keyword.
+        label: str, optional
+            Label associate with the data points
+        dataset: dict of array of dtype float
+            Input data in time dependent dataset format
+        limit: dtype float
+            Lower Control Limit (LCL), Upper Control Limit (UCL), Center Line (CL)
+
+        Returns
+        -------
+        fig: Figure
+            Matplotlib figure class
+        ax: Axes or array of Axes
+            ax can be either a single Axes object, or an array of Axes objects if more than one subplot was created.
+            In this case only ONE subplot is created
+        """
+        x = [min(list(dataset.keys())), max(list(dataset.keys()))]
+        return Plotter.add_line(fig, ax, x, [limit, limit], fmt=fmt, label=label)
 
     @staticmethod
     def add_normal_distribution_text_box(fig, ax, mu, sigma, N, p_value):

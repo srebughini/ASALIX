@@ -159,9 +159,73 @@ print("\u03C3 known:  ", ax.calculate_confidence_interval(dataset, 0.95, populat
 print("\u03C3 unknown:", ax.calculate_confidence_interval(dataset, 0.95, population=False))
 ```
 
+### 2.7 Check dataset using [Nelson rules](https://en.wikipedia.org/wiki/Nelson_rules)
+
+```python
+import pandas as pd
+import numpy as np
+import asalix as ax
+
+# Extract the dataset from a Pandas Dataframe that contains normal and not normal data
+dataset = ax.extract_dataset(pd.DataFrame({"normal_dataset": np.random.normal(100, 20, 150),
+                                           "not_normal_dataset": list(range(1, 151))}),
+                             data_column_name="normal_dataset")
+
+# Print the confidence interval on screen
+nelson_rules = ax.check_dataset_using_nelson_rules(dataset)
+print("\nNelson rules")
+print("Rule 1: ", nelson_rules.rule1)
+print("Rule 2: ", nelson_rules.rule2)
+print("Rule 3: ", nelson_rules.rule3)
+print("Rule 4: ", nelson_rules.rule4)
+print("Rule 5: ", nelson_rules.rule5)
+print("Rule 6: ", nelson_rules.rule6)
+print("Rule 7: ", nelson_rules.rule7)
+```
+
+### 2.8 Plot control charts
+
+```python
+import pandas as pd
+import numpy as np
+import asalix as ax
+
+# Extract the dataset with time dependent data from a Pandas Dataframe
+number_of_points = 150
+number_of_timestamp = 10
+
+data_matrix = np.random.rand(number_of_timestamp, number_of_points)
+time_matrix = np.ones_like(data_matrix)
+
+for i in range(0, number_of_timestamp):
+    time_matrix[i, :] = time_matrix[i, :] * (i + 1)
+
+time_dependent_dataset = ax.extract_time_dependent_dataset(pd.DataFrame({"time": time_matrix.ravel(),
+                                                                         "data": data_matrix.ravel()}),
+                                                           "data",
+                                                           "time")
+
+# Create the control charts and plot it
+xbar_chart_limit, range_chart_limit = ax.create_control_charts(time_dependent_dataset,
+                                                               'XbarR',
+                                                               plot=True)
+
+# Print on screen the contro limits
+print("\nXbar chart")
+print("LCL:  ", xbar_chart_limit.lcl)
+print("UCL:  ", xbar_chart_limit.ucl)
+print("CL:   ", xbar_chart_limit.cl)
+
+print("\nRange chart")
+print("LCL:  ", range_chart_limit.lcl)
+print("UCL:  ", range_chart_limit.ucl)
+print("CL:   ", range_chart_limit.cl)
+```
 
 ## 3. For developers
+
 To upload a new version of **ASALIX** on [PyPi](https://pypi.org/project/asalix/0.1.0/):
+
 ```bash
 pip install --upgrade .
 python example.py

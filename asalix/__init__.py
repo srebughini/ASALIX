@@ -34,6 +34,32 @@ def extract_dataset(data, sheet_name=None, data_column_name=None):
     return DatasetExtractor.extract_dataset(data, sheet_name=sheet_name, data_column_name=data_column_name)
 
 
+def extract_time_dependent_dataset(data,
+                                   data_column_name,
+                                   time_column_name,
+                                   sheet_name=None):
+    """
+    Import dataset from python list,  Pandas DataFrame, .csv file, .xlsx file
+    Parameters
+    ----------
+    data: Pandas DataFrame, str
+            Input data
+    data_column_name: str
+        Column name of the dataframe that contains the data. If None the first column is returned
+    time_column_name: str
+        Column name of the dataframe that contains the time. If None the
+    sheet_name: str, optional
+        Sheet name in the .xlsx file
+
+    Returns
+    -------
+    dataset: dict of array of dtype float
+        Input data in time dependent dataset format
+    """
+    return DatasetExtractor.extract_time_dependent_dataset(data, data_column_name, time_column_name,
+                                                           sheet_name=sheet_name)
+
+
 def calculate_mean_value(dataset):
     """
     Compute the arithmetic mean of the dataset.
@@ -327,53 +353,94 @@ def create_quartiles(dataset, plot=False, fig_number=1):
                            fourth=maximum)
 
 
+def check_dataset_using_nelson_rules(dataset):
+    """
+    Check the dataset using the Nelson Rules (https://en.wikipedia.org/wiki/Nelson_rules)
+    Parameters
+    ----------
+    dataset: array_like
+        Input data.
+
+    Returns
+    -------
+    rule1: bool
+        if True one point is more than 3 standard deviations from the mean.
+    rule2: bool
+        if True nine (or more) points in a row are on the same side of the mean.
+    rule3: bool
+        if True six (or more) points in a row are continually increasing (or decreasing).
+    rule4: bool
+        if True fourteen (or more) points in a row alternate in direction, increasing then decreasing.
+    rule5: bool
+        if True two (or three) out of three points in a row are more than 2 standard deviations from the mean in the same direction.
+    rule6: bool
+        if True four (or five) out of five points in a row are more than 1 standard deviation from the mean in the same direction.
+    rule7: bool
+        if True fifteen points in a row are all within 1 standard deviation of the mean on either side of the mean.
+    rule8: bool
+        if True eight points in a row exist, but none within 1 standard deviation of the mean, and the points are in both directions from the mean.
+    """
+    return SimpleNamespace(rule1=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE1),
+                           rule2=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE2),
+                           rule3=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE3),
+                           rule4=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE4),
+                           rule5=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE5),
+                           rule6=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE6),
+                           rule7=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE7),
+                           rule8=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE7))
+
+
 def create_control_charts(dataset, control_chart, plot=False, fig_number=1):
     """
     Create control chart on the dataset
     Parameters
     ----------
-    dataset: array_like
-        Input data.
+    dataset: dict of array of dtype float
+        Input data in time dependent dataset format
     control_chart: str
         Control chart type: {'XbarR',  #Xbar-R - Range charts
-                             'XbarS',  #Xbar-S - Standard Deviation charts
-                             'mr'}     #Moving Average - Range charts
+                             'XbarS',  #Xbar-S - Standard Deviation charts}
+
     plot: bool, optional
         If False, no plot is shown. If True, dataset is plotted.
     fig_number: int, optional
         Figure number
     Returns
     -------
-    lcl: dtype float
+    Xbar lcl, Xbar ucl: dtype float
         Lower Control Limit
-    ucl: dtype float
+    R/S lcl, R/S ucl: dtype float
         Upper Control Limit
-    mean: dtype float
-        Mean value
-    rule1: dtype bool
-        if True one point is more than 3 standard deviations from the mean.
-    rule2: dtype bool
-        if True nine (or more) points in a row are on the same side of the mean.
-    rule3: dtype bool
-        if True six (or more) points in a row are continually increasing (or decreasing).
-    rule4: dtype bool
-        if True fourteen (or more) points in a row alternate in direction, increasing then decreasing.
-    rule5: dtype bool
-        if True two (or three) out of three points in a row are more than 2 standard deviations from the mean in the same direction.
-    rule6: dtype bool
-        if True four (or five) out of five points in a row are more than 1 standard deviation from the mean in the same direction.
-    rule7: dtype bool
-        if True fifteen points in a row are all within 1 standard deviation of the mean on either side of the mean.
-    rule8: dtype bool
-        if True eight points in a row exist, but none within 1 standard deviation of the mean, and the points are in both directions from the mean.
     """
-    # https://en.wikipedia.org/wiki/Nelson_rules - Regole per capire se sono in controll
-    # https://github.com/omerfarukozturk/AnomalyDetection/blob/master/AnomalyDetection.py - Class for dectect anomaly using nelson rules
-    # https://github.com/carlosqsilva/pyspc/blob/master/pyspc/ccharts/tables.py - Tables with the parameters to estimate UCL, LCL
-    return SimpleNamespace(lcl=0,
-                           ucl=0,
-                           mean=NumericalMethods.calculate_mean_value(dataset),
-                           rule1=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE1),
-                           rule2=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE2),
-                           rule3=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE3),
-                           rule4=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE4))
+    lcl_xbar, lcl_range, ucl_xbar, ucl_range, cl_xbar, cl_range = NumericalMethods.calculate_control_limits(dataset,
+                                                                                                            control_chart)
+
+    if plot:
+        fig_xbar, ax_xbar = Plotter.create_figure(fig_number)
+        fig_xbar, ax_xbar = Plotter.add_title(fig_xbar, ax_xbar, "Xbar Chart")
+        fig_xbar, ax_xbar = Plotter.add_control_limit_line(fig_xbar, ax_xbar, dataset, lcl_xbar, fmt='r')
+        fig_xbar, ax_xbar = Plotter.add_control_limit_line(fig_xbar, ax_xbar, dataset, ucl_xbar, fmt='r')
+        fig_xbar, ax_xbar = Plotter.add_control_limit_line(fig_xbar, ax_xbar, dataset, cl_xbar, fmt='--k')
+        x = list(dataset.keys())
+        y_bar = [NumericalMethods.calculate_mean_value(dataset[k]) for k in x]
+        fig_xbar, ax_xbar = Plotter.add_line(fig_xbar, ax_xbar, x, y_bar, fmt='-ob')
+
+        fig_range, ax_range = Plotter.create_figure(fig_number + 1)
+        if control_chart == "XbarR":
+            fig_range, ax_range = Plotter.add_title(fig_range, ax_range, "Range Chart")
+            y_range = [NumericalMethods.calculate_range_value(dataset[k]) for k in x]
+
+        if control_chart == "XbarS":
+            fig_range, ax_range = Plotter.add_title(fig_range, ax_range, "Standard Deviation Chart")
+            y_range = [NumericalMethods.calculate_sample_standard_deviation(dataset[k]) for k in x]
+
+        fig_range, ax_range = Plotter.add_control_limit_line(fig_range, ax_range, dataset, lcl_range, fmt='r')
+        fig_range, ax_range = Plotter.add_control_limit_line(fig_range, ax_range, dataset, ucl_range, fmt='r')
+        fig_range, ax_range = Plotter.add_control_limit_line(fig_range, ax_range, dataset, cl_range, fmt='--k')
+        fig_range, ax_range = Plotter.add_line(fig_range, ax_range, x, y_range, fmt='-ob')
+
+        Plotter.show(fig_xbar, ax_xbar)
+        Plotter.show(fig_range, ax_range)
+
+    return SimpleNamespace(lcl=lcl_xbar, ucl=ucl_xbar, cl=cl_xbar), \
+           SimpleNamespace(lcl=lcl_range, ucl=ucl_range, cl=cl_range)
