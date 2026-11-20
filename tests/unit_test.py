@@ -367,11 +367,15 @@ class UnitTest:
 
         Returns
         -------
-        None
+        check: bool
+            True if every test passed, False otherwise.
         """
         with open(tests_file_path) as json_file:
             solution_dict = json.load(json_file)
 
+        checks = []
         for function, testing_parameters in solution_dict[cls.__class__.__name__].items():
             f = getattr(cls, function)
-            UnitTest.check_function(cls, f, testing_parameters, print_on_screen)
+            checks.append(UnitTest.check_function(cls, f, testing_parameters, print_on_screen))
+
+        return all(checks)
