@@ -753,7 +753,7 @@ class NumericalMethods:
         upper_limit = mean + 1 * sigma
         lower_limit = mean - 1 * sigma
 
-        for i in range(len(dataset) - 15):
+        for i in range(len(dataset) - 15 + 1):
             check = True
             for j in range(15):
                 d = dataset[i + j]
@@ -769,7 +769,7 @@ class NumericalMethods:
     @staticmethod
     def perform_nelson_rule_8_test(dataset):
         """
-        Perform nelson rule number 7 test for control charts
+        Perform nelson rule number 8 test for control charts
         Parameters
         ----------
         dataset: array_like
@@ -786,15 +786,19 @@ class NumericalMethods:
         sigma = NumericalMethods.calculate_sample_standard_deviation(dataset)
         mean = NumericalMethods.calculate_mean_value(dataset)
 
-        for i in range(len(dataset) - 8):
+        for i in range(len(dataset) - 8 + 1):
             check = True
+            above_mean = False
+            below_mean = False
             for j in range(8):
                 d = dataset[i + j]
                 if abs(mean - d) < sigma:
                     check = False
                     break
+                above_mean = above_mean or d > mean
+                below_mean = below_mean or d < mean
 
-            if check:
+            if check and above_mean and below_mean:
                 return True
 
         return False
