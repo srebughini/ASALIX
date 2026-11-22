@@ -387,7 +387,7 @@ def check_dataset_using_nelson_rules(dataset):
                            rule5=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE5),
                            rule6=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE6),
                            rule7=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE7),
-                           rule8=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE7))
+                           rule8=NumericalMethods.perform_nelson_rule_test(dataset, NelsonRule.RULE8))
 
 
 def create_control_charts(dataset, control_chart, plot=False, fig_number=1):
