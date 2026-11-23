@@ -876,7 +876,7 @@ class NumericalMethods:
 
         if control_chart == 'XbarR':
             range_vector = [NumericalMethods.calculate_range_value(d) for d in dataset.values()]
-            mean_range = NumericalMethods.calculate_mean_value(range_vector[1:])
+            mean_range = NumericalMethods.calculate_mean_value(range_vector)
             a2 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
                                                                               ControlChartTablesCoefficient.A2)
             d3 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
