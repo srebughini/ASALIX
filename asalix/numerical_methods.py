@@ -136,7 +136,7 @@ class NumericalMethods:
             Extracted coefficient
         """
         keys_array = np.asarray(list(control_chart_coefficient.value.keys()))
-        return control_chart_coefficient.value[keys_array[np.argmin(keys_array - n)]]
+        return control_chart_coefficient.value[keys_array[np.argmin(np.abs(keys_array - n))]]
 
     @staticmethod
     def calculate_range_value(dataset):
