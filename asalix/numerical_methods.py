@@ -299,7 +299,7 @@ class NumericalMethods:
         confidence_interval: (float,float)
             Confidence internal of the dataset
         """
-        n = len(dataset)
+        n = np.size(dataset)
         confidence_coefficient = NumericalMethods.calculate_z_critical_value(confidence_level)
         mean_value = NumericalMethods.calculate_mean_value(dataset)
         standard_deviation = NumericalMethods.calculate_population_standard_deviation(dataset)
@@ -322,7 +322,7 @@ class NumericalMethods:
         confidence_interval: (float,float)
             Confidence internal of the dataset
         """
-        n = len(dataset)
+        n = np.size(dataset)
         confidence_coefficient = NumericalMethods.calculate_t_critical_value(confidence_level, n - 1)
         mean_value = NumericalMethods.calculate_mean_value(dataset)
         standard_deviation = NumericalMethods.calculate_sample_standard_deviation(dataset)
