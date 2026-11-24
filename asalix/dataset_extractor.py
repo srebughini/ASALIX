@@ -78,17 +78,17 @@ class DatasetExtractor:
             if ".csv" in data_as_generic:
                 return DatasetExtractor.convert_time_and_data_vectors_to_dataset(
                     DatasetExtractor.extract_dataset_from_csv(data_as_generic,
-                                                              data_column_name=data_column_name),
+                                                              data_column_name=time_column_name),
                     DatasetExtractor.extract_dataset_from_csv(data_as_generic,
-                                                              data_column_name=time_column_name))
+                                                              data_column_name=data_column_name))
 
             if ".xlsx" in data_as_generic:
                 return DatasetExtractor.convert_time_and_data_vectors_to_dataset(
                     DatasetExtractor.extract_dataset_from_xlsx(data_as_generic,
-                                                               data_column_name=data_column_name,
+                                                               data_column_name=time_column_name,
                                                                sheet_name=sheet_name),
                     DatasetExtractor.extract_dataset_from_xlsx(data_as_generic,
-                                                               data_column_name=time_column_name,
+                                                               data_column_name=data_column_name,
                                                                sheet_name=sheet_name))
 
         raise Exception("ASALIX: Not recognize data format")
