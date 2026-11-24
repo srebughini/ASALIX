@@ -425,7 +425,7 @@ class NumericalMethods:
         if ad > 0.2:
             return 1.0 - np.exp(-8.318 + 42.796 * ad - 59.938 * ad * ad)
 
-        return 1.0 - np.exp(13.436 + 101.14 * ad - 223.73 * ad * ad)
+        return 1.0 - np.exp(-13.436 + 101.14 * ad - 223.73 * ad * ad)
 
     @staticmethod
     def kolmogorov_smirnov_normality_test(dataset):
