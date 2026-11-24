@@ -265,22 +265,23 @@ def create_histogram(dataset,
 
     p_value = normality_test(dataset, test=normal_distribution_test)
 
-    fig, ax = Plotter.create_figure(fig_number)
-    fig, ax = Plotter.add_title(fig, ax, "Histogram")
-    fig, ax = Plotter.add_histogram(fig, ax, dataset, bins=bins, datarange=datarange, density=density)
+    if plot:
+        fig, ax = Plotter.create_figure(fig_number)
+        fig, ax = Plotter.add_title(fig, ax, "Histogram")
+        fig, ax = Plotter.add_histogram(fig, ax, dataset, bins=bins, datarange=datarange, density=density)
 
-    if density:
-        fig, ax = Plotter.add_axes_labels(fig, ax, "Values", "Density")
-    else:
-        fig, ax = Plotter.add_axes_labels(fig, ax, "Values", "Occurrence")
+        if density:
+            fig, ax = Plotter.add_axes_labels(fig, ax, "Values", "Density")
+        else:
+            fig, ax = Plotter.add_axes_labels(fig, ax, "Values", "Occurrence")
 
-    fig, ax = Plotter.add_normal_distribution_text_box(fig,
-                                                       ax,
-                                                       NumericalMethods.calculate_mean_value(dataset),
-                                                       NumericalMethods.calculate_population_standard_deviation(
-                                                           dataset),
-                                                       len(dataset),
-                                                       p_value)
+        fig, ax = Plotter.add_normal_distribution_text_box(fig,
+                                                           ax,
+                                                           NumericalMethods.calculate_mean_value(dataset),
+                                                           NumericalMethods.calculate_population_standard_deviation(
+                                                               dataset),
+                                                           len(dataset),
+                                                           p_value)
 
     if not normal_distribution_fitting:
         if plot:
@@ -294,9 +295,8 @@ def create_histogram(dataset,
                                                             NumericalMethods.calculate_population_standard_deviation(
                                                                 dataset))
 
-    fig, ax = Plotter.add_normal_distribution_line(fig, ax, a, mu, sigma)
-
     if plot:
+        fig, ax = Plotter.add_normal_distribution_line(fig, ax, a, mu, sigma)
         Plotter.show(fig, ax)
     return SimpleNamespace(hist=hist,
                            bin_edges=bin_edges,
