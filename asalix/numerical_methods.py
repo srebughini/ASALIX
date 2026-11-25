@@ -154,14 +154,17 @@ class NumericalMethods:
         Parameters
         ----------
         dataset: array_like
-            Input data. The mean value is computed over the flattened array.
+            Input data. The range is computed over the flattened array.
 
         Returns
         -------
         range_vector: dtype float
             Return the range
         """
-        return max(dataset) - min(dataset)
+        dataset = np.asarray(dataset)
+        # Python scalars avoid fixed-width subtraction overflow while keeping
+        # small differences between large integer observations exact.
+        return np.asarray(dataset.max()).item() - np.asarray(dataset.min()).item()
 
     @staticmethod
     def calculate_mean_value(dataset):
