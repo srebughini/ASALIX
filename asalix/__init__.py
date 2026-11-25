@@ -189,6 +189,7 @@ def normal_distribution_fit(dataset,
     sigma: dtype float
         Return the standard deviation of the dataset.
     """
+    dataset = np.asarray(dataset).ravel()
     p_value = normality_test(dataset, test=normal_distribution_test)
     mu0 = NumericalMethods.calculate_mean_value(dataset)
     sigma0 = NumericalMethods.calculate_sample_standard_deviation(dataset)
@@ -258,6 +259,7 @@ def create_histogram(dataset,
     sigma: dtype float
         Return the standard deviation of the dataset, if gaussian_fit is True.
     """
+    dataset = np.asarray(dataset).ravel()
     hist, bin_edges, bin_centres = NumericalMethods.create_histogram(dataset,
                                                                      bins=bins,
                                                                      datarange=datarange,
@@ -330,6 +332,7 @@ def create_quartiles(dataset, plot=False, fig_number=1):
     maximum, fourth: dtype float
         4th quartile - 100%
     """
+    dataset = np.asarray(dataset).ravel()
     minimum = np.min(dataset)
     first_quartile = NumericalMethods.calculate_percentile(dataset, 25)
     median = NumericalMethods.calculate_percentile(dataset, 50)
