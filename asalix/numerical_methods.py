@@ -44,6 +44,11 @@ class ControlChartTablesCoefficient(Enum):
         25: 3.931}
 
     D3 = {
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0,
+        6: 0,
         7: 0.076,
         8: 0.136,
         9: 0.184,
@@ -91,6 +96,10 @@ class ControlChartTablesCoefficient(Enum):
         25: 0.9896}
 
     B3 = {
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0,
         6: 0.03,
         7: 0.118,
         8: 0.185,
@@ -860,6 +869,10 @@ class NumericalMethods:
                                  'XbarS',  #Xbar-S - Standard Deviation charts
                                  'mr'}     #Moving Average - Range charts
 
+        XbarR and XbarS require non-empty, equally sized subgroups with at
+        least two observations each. Their coefficients use that subgroup
+        size, not the number of subgroups in the dataset.
+
         Returns
         -------
         lcl_1: dtype float
@@ -875,18 +888,24 @@ class NumericalMethods:
         cl_2: dtype float
              Center line (CL) for R or S chart
         """
+        if control_chart in ('XbarR', 'XbarS'):
+            subgroup_sizes = {len(group) for group in dataset.values()}
+            if len(subgroup_sizes) != 1 or min(subgroup_sizes) < 2:
+                raise ValueError('Control charts require equally sized subgroups with at least two observations')
+            subgroup_size = next(iter(subgroup_sizes))
+
         mean_vector = [NumericalMethods.calculate_mean_value(d) for d in dataset.values()]
         mean = NumericalMethods.calculate_mean_value(mean_vector)
 
         if control_chart == 'XbarR':
             range_vector = [NumericalMethods.calculate_range_value(d) for d in dataset.values()]
             mean_range = NumericalMethods.calculate_mean_value(range_vector)
-            a2 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
+            a2 = NumericalMethods._access_to_control_chart_tables_coefficient(subgroup_size,
                                                                               ControlChartTablesCoefficient.A2)
-            d3 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
+            d3 = NumericalMethods._access_to_control_chart_tables_coefficient(subgroup_size,
                                                                               ControlChartTablesCoefficient.D3)
 
-            d4 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
+            d4 = NumericalMethods._access_to_control_chart_tables_coefficient(subgroup_size,
                                                                               ControlChartTablesCoefficient.D4)
 
             return mean - a2 * mean_range, \
@@ -900,12 +919,12 @@ class NumericalMethods:
             standard_deviation_vector = [NumericalMethods.calculate_sample_standard_deviation(d) for d in
                                          dataset.values()]
             mean_standard_deviation = NumericalMethods.calculate_mean_value(standard_deviation_vector)
-            a3 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
+            a3 = NumericalMethods._access_to_control_chart_tables_coefficient(subgroup_size,
                                                                               ControlChartTablesCoefficient.A3)
-            b3 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
+            b3 = NumericalMethods._access_to_control_chart_tables_coefficient(subgroup_size,
                                                                               ControlChartTablesCoefficient.B3)
 
-            b4 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
+            b4 = NumericalMethods._access_to_control_chart_tables_coefficient(subgroup_size,
                                                                               ControlChartTablesCoefficient.B4)
 
             return mean - a3 * mean_standard_deviation, \
