@@ -582,20 +582,19 @@ class NumericalMethods:
         if len(dataset) < 6:
             return False
 
-        diff_array = dataset[1:] - dataset[:-1]
         upper_side = False
         lower_side = False
         count = 0
 
-        for v in diff_array:
-            if v > 0:
+        for previous, current in zip(dataset[:-1], dataset[1:]):
+            if current > previous:
                 if upper_side:
                     count = count + 1
                 else:
                     upper_side = True
                     lower_side = False
                     count = 1
-            elif v < 0:
+            elif current < previous:
                 if lower_side:
                     count = count + 1
                 else:
@@ -607,7 +606,7 @@ class NumericalMethods:
                 lower_side = False
                 count = 0
 
-            if count > 5:
+            if count >= 5:
                 return True
 
         return False
