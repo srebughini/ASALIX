@@ -33,11 +33,11 @@ class DatasetExtractor:
                                                                    data_column_name=data_column_name)
 
         if isinstance(data_as_generic, str):
-            if ".csv" in data_as_generic:
+            if data_as_generic.lower().endswith(".csv"):
                 return DatasetExtractor.extract_dataset_from_csv(data_as_generic,
                                                                  data_column_name=data_column_name)
 
-            if ".xlsx" in data_as_generic:
+            if data_as_generic.lower().endswith(".xlsx"):
                 return DatasetExtractor.extract_dataset_from_xlsx(data_as_generic,
                                                                   data_column_name=data_column_name,
                                                                   sheet_name=sheet_name)
@@ -75,14 +75,14 @@ class DatasetExtractor:
                                                                 data_column_name=data_column_name))
 
         if isinstance(data_as_generic, str):
-            if ".csv" in data_as_generic:
+            if data_as_generic.lower().endswith(".csv"):
                 return DatasetExtractor.convert_time_and_data_vectors_to_dataset(
                     DatasetExtractor.extract_dataset_from_csv(data_as_generic,
                                                               data_column_name=time_column_name),
                     DatasetExtractor.extract_dataset_from_csv(data_as_generic,
                                                               data_column_name=data_column_name))
 
-            if ".xlsx" in data_as_generic:
+            if data_as_generic.lower().endswith(".xlsx"):
                 return DatasetExtractor.convert_time_and_data_vectors_to_dataset(
                     DatasetExtractor.extract_dataset_from_xlsx(data_as_generic,
                                                                data_column_name=time_column_name,
