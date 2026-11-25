@@ -659,29 +659,20 @@ class NumericalMethods:
         result: bool
             if True two (or three) out of three points in a row are more than 2 standard deviations from the mean in the same direction.
         """
-        if len(dataset) < 4:
+        if len(dataset) < 3:
             return False
 
         sigma = NumericalMethods.calculate_sample_standard_deviation(dataset)
         mean = NumericalMethods.calculate_mean_value(dataset)
         upper_limit = mean + 2 * sigma
         lower_limit = mean - 2 * sigma
-        upper_count = 0
-        lower_count = 0
-
-        for i in range(0, len(dataset) - 3):
+        for i in range(len(dataset) - 3 + 1):
             value_list = [dataset[i + j] for j in [0, 1, 2]]
 
-            if len(list(filter(lambda x: x > upper_limit, value_list))) == 3:
-                upper_count = upper_count + 1
-
-            if len(list(filter(lambda x: x < lower_limit, value_list))) == 3:
-                lower_count = lower_count + 1
-
-            if upper_count > 1:
+            if sum(value > upper_limit for value in value_list) >= 2:
                 return True
 
-            if lower_count > 1:
+            if sum(value < lower_limit for value in value_list) >= 2:
                 return True
 
         return False
@@ -700,29 +691,20 @@ class NumericalMethods:
         result: bool
             if True four (or five) out of five points in a row are more than 1 standard deviation from the mean in the same direction.
         """
-        if len(dataset) < 6:
+        if len(dataset) < 5:
             return False
 
         sigma = NumericalMethods.calculate_sample_standard_deviation(dataset)
         mean = NumericalMethods.calculate_mean_value(dataset)
         upper_limit = mean + 1 * sigma
         lower_limit = mean - 1 * sigma
-        upper_count = 0
-        lower_count = 0
-
-        for i in range(0, len(dataset) - 5):
+        for i in range(len(dataset) - 5 + 1):
             value_list = [dataset[i + j] for j in [0, 1, 2, 3, 4]]
 
-            if len(list(filter(lambda x: x > upper_limit, value_list))) == 5:
-                upper_count = upper_count + 1
-
-            if len(list(filter(lambda x: x < lower_limit, value_list))) == 5:
-                lower_count = lower_count + 1
-
-            if upper_count > 3:
+            if sum(value > upper_limit for value in value_list) >= 4:
                 return True
 
-            if lower_count > 3:
+            if sum(value < lower_limit for value in value_list) >= 4:
                 return True
 
         return False
