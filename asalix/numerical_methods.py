@@ -628,31 +628,19 @@ class NumericalMethods:
         if len(dataset) < 14:
             return False
 
-        diff_array = dataset[1:] - dataset[:-1]
-        upper_side = False
-        lower_side = False
+        previous_direction = 0
         count = 0
-        for i in range(1, len(diff_array)):
-            if diff_array[i] > diff_array[i - 1]:
-                if upper_side:
-                    count = count + 1
-                else:
-                    upper_side = True
-                    lower_side = False
-                    count = 1
-            elif diff_array[i] < diff_array[i - 1]:
-                if lower_side:
-                    count = count + 1
-                else:
-                    upper_side = False
-                    lower_side = True
-                    count = 1
-            else:
-                upper_side = False
-                lower_side = False
+        for previous, current in zip(dataset[:-1], dataset[1:]):
+            direction = 1 if current > previous else -1 if current < previous else 0
+            if direction == 0:
                 count = 0
+            elif direction == -previous_direction:
+                count += 1
+            else:
+                count = 1
+            previous_direction = direction
 
-            if count > 13:
+            if count >= 13:
                 return True
 
         return False
