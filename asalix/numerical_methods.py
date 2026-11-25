@@ -416,6 +416,11 @@ class NumericalMethods:
         n = len(dataset)
         ad = res.statistic * (1 + 0.75 / n + 2.25 / (n * n))
 
+        # The tail approximation is valid through 13; larger statistics have
+        # p < 4.955e-31, as in statsmodels' normal_ad scalar approximation.
+        if ad > 13:
+            return 0.0
+
         if ad >= 0.6:
             return np.exp(1.2937 - 5.709 * ad + 0.0186 * ad * ad)
 
