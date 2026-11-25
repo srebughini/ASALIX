@@ -35,6 +35,7 @@ setup(
     license='GNU General Public License v3.0',
     packages=['asalix'],
     install_requires=['et-xmlfile==1.1.0',
+                      'matplotlib==3.9.4',
                       'numpy==1.25.1',
                       'openpyxl==3.1.2',
                       'pandas==2.0.3',
