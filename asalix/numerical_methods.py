@@ -514,10 +514,7 @@ class NumericalMethods:
         mean = NumericalMethods.calculate_mean_value(dataset)
         upper_limit = mean + 3 * sigma
         lower_limit = mean - 3 * sigma
-        if sum([0 if upper_limit > v > lower_limit else 1 for v in dataset]) > 0:
-            return True
-
-        return False
+        return any(v > upper_limit or v < lower_limit for v in dataset)
 
     @staticmethod
     def perform_nelson_rule_2_test(dataset):
