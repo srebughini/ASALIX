@@ -44,6 +44,11 @@ class ControlChartTablesCoefficient(Enum):
         25: 3.931}
 
     D3 = {
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0,
+        6: 0,
         7: 0.076,
         8: 0.136,
         9: 0.184,
@@ -91,6 +96,10 @@ class ControlChartTablesCoefficient(Enum):
         25: 0.9896}
 
     B3 = {
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0,
         6: 0.03,
         7: 0.118,
         8: 0.185,
@@ -145,14 +154,17 @@ class NumericalMethods:
         Parameters
         ----------
         dataset: array_like
-            Input data. The mean value is computed over the flattened array.
+            Input data. The range is computed over the flattened array.
 
         Returns
         -------
         range_vector: dtype float
             Return the range
         """
-        return max(dataset) - min(dataset)
+        dataset = np.asarray(dataset)
+        # Python scalars avoid fixed-width subtraction overflow while keeping
+        # small differences between large integer observations exact.
+        return np.asarray(dataset.max()).item() - np.asarray(dataset.min()).item()
 
     @staticmethod
     def calculate_mean_value(dataset):
@@ -299,7 +311,7 @@ class NumericalMethods:
         confidence_interval: (float,float)
             Confidence internal of the dataset
         """
-        n = len(dataset)
+        n = np.size(dataset)
         confidence_coefficient = NumericalMethods.calculate_z_critical_value(confidence_level)
         mean_value = NumericalMethods.calculate_mean_value(dataset)
         standard_deviation = NumericalMethods.calculate_population_standard_deviation(dataset)
@@ -322,7 +334,7 @@ class NumericalMethods:
         confidence_interval: (float,float)
             Confidence internal of the dataset
         """
-        n = len(dataset)
+        n = np.size(dataset)
         confidence_coefficient = NumericalMethods.calculate_t_critical_value(confidence_level, n - 1)
         mean_value = NumericalMethods.calculate_mean_value(dataset)
         standard_deviation = NumericalMethods.calculate_sample_standard_deviation(dataset)
@@ -362,7 +374,8 @@ class NumericalMethods:
             Return the bin centers (length(hist)).
         """
         hist, bin_edges = np.histogram(dataset, bins=bins, density=density, range=datarange)
-        bin_centres = (bin_edges[:-1] + bin_edges[1:]) / 2
+        centre_edges = bin_edges.astype(np.result_type(bin_edges.dtype, np.float64))
+        bin_centres = (centre_edges[:-1] + centre_edges[1:]) / 2
         return hist, bin_edges, bin_centres
 
     @staticmethod
@@ -425,7 +438,7 @@ class NumericalMethods:
         if ad > 0.2:
             return 1.0 - np.exp(-8.318 + 42.796 * ad - 59.938 * ad * ad)
 
-        return 1.0 - np.exp(13.436 + 101.14 * ad - 223.73 * ad * ad)
+        return 1.0 - np.exp(-13.436 + 101.14 * ad - 223.73 * ad * ad)
 
     @staticmethod
     def kolmogorov_smirnov_normality_test(dataset):
@@ -505,10 +518,7 @@ class NumericalMethods:
         mean = NumericalMethods.calculate_mean_value(dataset)
         upper_limit = mean + 3 * sigma
         lower_limit = mean - 3 * sigma
-        if sum([0 if upper_limit > v > lower_limit else 1 for v in dataset]) > 0:
-            return True
-
-        return False
+        return any(v > upper_limit or v < lower_limit for v in dataset)
 
     @staticmethod
     def perform_nelson_rule_2_test(dataset):
@@ -573,20 +583,19 @@ class NumericalMethods:
         if len(dataset) < 6:
             return False
 
-        diff_array = dataset[1:] - dataset[:-1]
         upper_side = False
         lower_side = False
         count = 0
 
-        for v in diff_array:
-            if v > 0:
+        for previous, current in zip(dataset[:-1], dataset[1:]):
+            if current > previous:
                 if upper_side:
                     count = count + 1
                 else:
                     upper_side = True
                     lower_side = False
                     count = 1
-            elif v < 0:
+            elif current < previous:
                 if lower_side:
                     count = count + 1
                 else:
@@ -598,7 +607,7 @@ class NumericalMethods:
                 lower_side = False
                 count = 0
 
-            if count > 5:
+            if count >= 5:
                 return True
 
         return False
@@ -620,31 +629,19 @@ class NumericalMethods:
         if len(dataset) < 14:
             return False
 
-        diff_array = dataset[1:] - dataset[:-1]
-        upper_side = False
-        lower_side = False
+        previous_direction = 0
         count = 0
-        for i in range(1, len(diff_array)):
-            if diff_array[i] > diff_array[i - 1]:
-                if upper_side:
-                    count = count + 1
-                else:
-                    upper_side = True
-                    lower_side = False
-                    count = 1
-            elif diff_array[i] < diff_array[i - 1]:
-                if lower_side:
-                    count = count + 1
-                else:
-                    upper_side = False
-                    lower_side = True
-                    count = 1
-            else:
-                upper_side = False
-                lower_side = False
+        for previous, current in zip(dataset[:-1], dataset[1:]):
+            direction = 1 if current > previous else -1 if current < previous else 0
+            if direction == 0:
                 count = 0
+            elif direction == -previous_direction:
+                count += 1
+            else:
+                count = 1
+            previous_direction = direction
 
-            if count > 13:
+            if count >= 13:
                 return True
 
         return False
@@ -663,29 +660,20 @@ class NumericalMethods:
         result: bool
             if True two (or three) out of three points in a row are more than 2 standard deviations from the mean in the same direction.
         """
-        if len(dataset) < 4:
+        if len(dataset) < 3:
             return False
 
         sigma = NumericalMethods.calculate_sample_standard_deviation(dataset)
         mean = NumericalMethods.calculate_mean_value(dataset)
         upper_limit = mean + 2 * sigma
         lower_limit = mean - 2 * sigma
-        upper_count = 0
-        lower_count = 0
-
-        for i in range(0, len(dataset) - 3):
+        for i in range(len(dataset) - 3 + 1):
             value_list = [dataset[i + j] for j in [0, 1, 2]]
 
-            if len(list(filter(lambda x: x > upper_limit, value_list))) == 3:
-                upper_count = upper_count + 1
-
-            if len(list(filter(lambda x: x < lower_limit, value_list))) == 3:
-                lower_count = lower_count + 1
-
-            if upper_count > 1:
+            if sum(value > upper_limit for value in value_list) >= 2:
                 return True
 
-            if lower_count > 1:
+            if sum(value < lower_limit for value in value_list) >= 2:
                 return True
 
         return False
@@ -704,29 +692,20 @@ class NumericalMethods:
         result: bool
             if True four (or five) out of five points in a row are more than 1 standard deviation from the mean in the same direction.
         """
-        if len(dataset) < 6:
+        if len(dataset) < 5:
             return False
 
         sigma = NumericalMethods.calculate_sample_standard_deviation(dataset)
         mean = NumericalMethods.calculate_mean_value(dataset)
         upper_limit = mean + 1 * sigma
         lower_limit = mean - 1 * sigma
-        upper_count = 0
-        lower_count = 0
-
-        for i in range(0, len(dataset) - 5):
+        for i in range(len(dataset) - 5 + 1):
             value_list = [dataset[i + j] for j in [0, 1, 2, 3, 4]]
 
-            if len(list(filter(lambda x: x > upper_limit, value_list))) == 5:
-                upper_count = upper_count + 1
-
-            if len(list(filter(lambda x: x < lower_limit, value_list))) == 5:
-                lower_count = lower_count + 1
-
-            if upper_count > 3:
+            if sum(value > upper_limit for value in value_list) >= 4:
                 return True
 
-            if lower_count > 3:
+            if sum(value < lower_limit for value in value_list) >= 4:
                 return True
 
         return False
@@ -860,6 +839,10 @@ class NumericalMethods:
                                  'XbarS',  #Xbar-S - Standard Deviation charts
                                  'mr'}     #Moving Average - Range charts
 
+        XbarR and XbarS require non-empty, equally sized subgroups with at
+        least two observations each. Their coefficients use that subgroup
+        size, not the number of subgroups in the dataset.
+
         Returns
         -------
         lcl_1: dtype float
@@ -875,18 +858,24 @@ class NumericalMethods:
         cl_2: dtype float
              Center line (CL) for R or S chart
         """
+        if control_chart in ('XbarR', 'XbarS'):
+            subgroup_sizes = {len(group) for group in dataset.values()}
+            if len(subgroup_sizes) != 1 or min(subgroup_sizes) < 2:
+                raise ValueError('Control charts require equally sized subgroups with at least two observations')
+            subgroup_size = next(iter(subgroup_sizes))
+
         mean_vector = [NumericalMethods.calculate_mean_value(d) for d in dataset.values()]
         mean = NumericalMethods.calculate_mean_value(mean_vector)
 
         if control_chart == 'XbarR':
             range_vector = [NumericalMethods.calculate_range_value(d) for d in dataset.values()]
             mean_range = NumericalMethods.calculate_mean_value(range_vector)
-            a2 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
+            a2 = NumericalMethods._access_to_control_chart_tables_coefficient(subgroup_size,
                                                                               ControlChartTablesCoefficient.A2)
-            d3 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
+            d3 = NumericalMethods._access_to_control_chart_tables_coefficient(subgroup_size,
                                                                               ControlChartTablesCoefficient.D3)
 
-            d4 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
+            d4 = NumericalMethods._access_to_control_chart_tables_coefficient(subgroup_size,
                                                                               ControlChartTablesCoefficient.D4)
 
             return mean - a2 * mean_range, \
@@ -900,12 +889,12 @@ class NumericalMethods:
             standard_deviation_vector = [NumericalMethods.calculate_sample_standard_deviation(d) for d in
                                          dataset.values()]
             mean_standard_deviation = NumericalMethods.calculate_mean_value(standard_deviation_vector)
-            a3 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
+            a3 = NumericalMethods._access_to_control_chart_tables_coefficient(subgroup_size,
                                                                               ControlChartTablesCoefficient.A3)
-            b3 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
+            b3 = NumericalMethods._access_to_control_chart_tables_coefficient(subgroup_size,
                                                                               ControlChartTablesCoefficient.B3)
 
-            b4 = NumericalMethods._access_to_control_chart_tables_coefficient(len(dataset),
+            b4 = NumericalMethods._access_to_control_chart_tables_coefficient(subgroup_size,
                                                                               ControlChartTablesCoefficient.B4)
 
             return mean - a3 * mean_standard_deviation, \

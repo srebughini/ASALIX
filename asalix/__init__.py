@@ -131,6 +131,7 @@ def normality_test(dataset, test='basic'):
         Input data.
     test: str, optional
         Normality test type: {'basic', 'anderson-darling', 'kolmogorov_smirnov', 'shapiro_wilk'}
+        'anderson_darling' is also accepted for the Anderson-Darling test.
 
     Returns
     -------
@@ -138,7 +139,7 @@ def normality_test(dataset, test='basic'):
         If the p value is < 0.05, we reject the null hypotheses that the data are from a normal distribution.
         If the p value is > 0.05, we accept the null hypotheses that the data are from a normal distribution.
     """
-    if test == 'anderson-darling':
+    if test in ('anderson-darling', 'anderson_darling'):
         return NumericalMethods.anderson_darling_normality_test(dataset)
 
     if test == 'kolmogorov_smirnov':
@@ -177,6 +178,7 @@ def normal_distribution_fit(dataset,
         it is not a probability mass function.
     normal_distribution_test: str, optional
         Normality test type: {'basic', 'anderson-darling', 'kolmogorov_smirnov', 'shapiro_wilk'}
+        'anderson_darling' is also accepted for the Anderson-Darling test.
     Returns
     -------
     p-value: dtype float
@@ -189,6 +191,7 @@ def normal_distribution_fit(dataset,
     sigma: dtype float
         Return the standard deviation of the dataset.
     """
+    dataset = np.asarray(dataset).ravel()
     p_value = normality_test(dataset, test=normal_distribution_test)
     mu0 = NumericalMethods.calculate_mean_value(dataset)
     sigma0 = NumericalMethods.calculate_sample_standard_deviation(dataset)
@@ -238,6 +241,7 @@ def create_histogram(dataset,
         the mean value of the dataset and sigma is the standard deviation of the dataset.
     normal_distribution_test: str, optional
         Normality test type: {'basic', 'anderson-darling', 'kolmogorov_smirnov', 'shapiro_wilk'}
+        'anderson_darling' is also accepted for the Anderson-Darling test.
     plot: bool, optional
         If False, no plot is shown. If True, dataset is plotted.
     fig_number: int, optional
@@ -258,6 +262,7 @@ def create_histogram(dataset,
     sigma: dtype float
         Return the standard deviation of the dataset, if gaussian_fit is True.
     """
+    dataset = np.asarray(dataset).ravel()
     hist, bin_edges, bin_centres = NumericalMethods.create_histogram(dataset,
                                                                      bins=bins,
                                                                      datarange=datarange,
@@ -265,22 +270,23 @@ def create_histogram(dataset,
 
     p_value = normality_test(dataset, test=normal_distribution_test)
 
-    fig, ax = Plotter.create_figure(fig_number)
-    fig, ax = Plotter.add_title(fig, ax, "Histogram")
-    fig, ax = Plotter.add_histogram(fig, ax, dataset, bins=bins, datarange=datarange, density=density)
+    if plot:
+        fig, ax = Plotter.create_figure(fig_number)
+        fig, ax = Plotter.add_title(fig, ax, "Histogram")
+        fig, ax = Plotter.add_histogram(fig, ax, dataset, bins=bins, datarange=datarange, density=density)
 
-    if density:
-        fig, ax = Plotter.add_axes_labels(fig, ax, "Values", "Density")
-    else:
-        fig, ax = Plotter.add_axes_labels(fig, ax, "Values", "Occurrence")
+        if density:
+            fig, ax = Plotter.add_axes_labels(fig, ax, "Values", "Density")
+        else:
+            fig, ax = Plotter.add_axes_labels(fig, ax, "Values", "Occurrence")
 
-    fig, ax = Plotter.add_normal_distribution_text_box(fig,
-                                                       ax,
-                                                       NumericalMethods.calculate_mean_value(dataset),
-                                                       NumericalMethods.calculate_population_standard_deviation(
-                                                           dataset),
-                                                       len(dataset),
-                                                       p_value)
+        fig, ax = Plotter.add_normal_distribution_text_box(fig,
+                                                           ax,
+                                                           NumericalMethods.calculate_mean_value(dataset),
+                                                           NumericalMethods.calculate_population_standard_deviation(
+                                                               dataset),
+                                                           len(dataset),
+                                                           p_value)
 
     if not normal_distribution_fitting:
         if plot:
@@ -294,9 +300,8 @@ def create_histogram(dataset,
                                                             NumericalMethods.calculate_population_standard_deviation(
                                                                 dataset))
 
-    fig, ax = Plotter.add_normal_distribution_line(fig, ax, a, mu, sigma)
-
     if plot:
+        fig, ax = Plotter.add_normal_distribution_line(fig, ax, a, mu, sigma)
         Plotter.show(fig, ax)
     return SimpleNamespace(hist=hist,
                            bin_edges=bin_edges,
@@ -330,6 +335,7 @@ def create_quartiles(dataset, plot=False, fig_number=1):
     maximum, fourth: dtype float
         4th quartile - 100%
     """
+    dataset = np.asarray(dataset).ravel()
     minimum = np.min(dataset)
     first_quartile = NumericalMethods.calculate_percentile(dataset, 25)
     median = NumericalMethods.calculate_percentile(dataset, 50)
