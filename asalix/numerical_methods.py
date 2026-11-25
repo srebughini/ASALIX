@@ -371,7 +371,8 @@ class NumericalMethods:
             Return the bin centers (length(hist)).
         """
         hist, bin_edges = np.histogram(dataset, bins=bins, density=density, range=datarange)
-        bin_centres = (bin_edges[:-1] + bin_edges[1:]) / 2
+        centre_edges = bin_edges.astype(np.result_type(bin_edges.dtype, np.float64))
+        bin_centres = (centre_edges[:-1] + centre_edges[1:]) / 2
         return hist, bin_edges, bin_centres
 
     @staticmethod
