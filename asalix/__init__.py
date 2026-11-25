@@ -131,6 +131,7 @@ def normality_test(dataset, test='basic'):
         Input data.
     test: str, optional
         Normality test type: {'basic', 'anderson-darling', 'kolmogorov_smirnov', 'shapiro_wilk'}
+        'anderson_darling' is also accepted for the Anderson-Darling test.
 
     Returns
     -------
@@ -138,7 +139,7 @@ def normality_test(dataset, test='basic'):
         If the p value is < 0.05, we reject the null hypotheses that the data are from a normal distribution.
         If the p value is > 0.05, we accept the null hypotheses that the data are from a normal distribution.
     """
-    if test == 'anderson-darling':
+    if test in ('anderson-darling', 'anderson_darling'):
         return NumericalMethods.anderson_darling_normality_test(dataset)
 
     if test == 'kolmogorov_smirnov':
@@ -177,6 +178,7 @@ def normal_distribution_fit(dataset,
         it is not a probability mass function.
     normal_distribution_test: str, optional
         Normality test type: {'basic', 'anderson-darling', 'kolmogorov_smirnov', 'shapiro_wilk'}
+        'anderson_darling' is also accepted for the Anderson-Darling test.
     Returns
     -------
     p-value: dtype float
@@ -238,6 +240,7 @@ def create_histogram(dataset,
         the mean value of the dataset and sigma is the standard deviation of the dataset.
     normal_distribution_test: str, optional
         Normality test type: {'basic', 'anderson-darling', 'kolmogorov_smirnov', 'shapiro_wilk'}
+        'anderson_darling' is also accepted for the Anderson-Darling test.
     plot: bool, optional
         If False, no plot is shown. If True, dataset is plotted.
     fig_number: int, optional
