@@ -6,6 +6,5 @@ python-dateutil
 pytz
 scipy
 six
-termcolor
 tzdata
-matplotlib
+matplotlib>=3.9

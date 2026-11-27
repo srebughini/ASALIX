@@ -223,6 +223,13 @@ print("CL:   ", range_chart_limit.cl)
 
 ## 3. For developers
 
+Run the full test suite from the repository root with Python 3.13. GitHub Actions runs the same pytest command.
+
+```bash
+python -m pip install -r requirements.txt pytest
+python -m pytest -q
+```
+
 To upload a new version of **ASALIX** on [PyPi](https://pypi.org/project/asalix/0.1.0/):
 
 ```bash
