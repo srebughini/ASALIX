@@ -27,3 +27,11 @@ def test_ordinary_nonuniform_edges_keep_their_counts_and_centres():
     np.testing.assert_array_equal(hist, [1, 4])
     np.testing.assert_array_equal(edges, [0, 1, 4])
     np.testing.assert_allclose(centres, [0.5, 2.5])
+
+
+def test_default_histogram_counts_edges_and_centres():
+    counts, edges, centres = NumericalMethods.create_histogram([1, 2, 3, 4])
+
+    np.testing.assert_array_equal(counts, [1, 0, 0, 1, 0, 0, 1, 0, 0, 1])
+    np.testing.assert_allclose(edges, np.linspace(1.0, 4.0, 11))
+    np.testing.assert_allclose(centres, np.linspace(1.15, 3.85, 10))

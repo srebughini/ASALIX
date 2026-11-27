@@ -3,6 +3,12 @@ import numpy as np
 from asalix.numerical_methods import NumericalMethods
 
 
+def test_gaussian_values_on_both_sides_of_the_peak():
+    values = NumericalMethods.calculate_normal_distribution([1, 2, 3, 4, 5], 3, 3, 1.5)
+
+    np.testing.assert_allclose(values, [1.23333687, 2.40221221, 3.0, 2.40221221, 1.23333687])
+
+
 def test_sparse_histogram_fit_is_nearly_flat_at_the_mean_count():
     counts = [1, 0, 0, 1, 0, 0, 1, 0, 0, 1]
     centres = [1.15, 1.45, 1.75, 2.05, 2.35, 2.65, 2.95, 3.25, 3.55, 3.85]
