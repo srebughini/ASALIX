@@ -43,7 +43,6 @@ setup(
                       'pytz',
                       'scipy',
                       'six',
-                      'termcolor',
                       'tzdata'],
 
     classifiers=[
