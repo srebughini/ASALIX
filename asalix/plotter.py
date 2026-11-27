@@ -131,7 +131,7 @@ class Plotter:
             ax can be either a single Axes object, or an array of Axes objects if more than one subplot was created.
             In this case only ONE subplot is created
         """
-        ax.boxplot(dataset, labels=labels)
+        ax.boxplot(dataset, tick_labels=labels)
         return fig, ax
 
     @staticmethod
